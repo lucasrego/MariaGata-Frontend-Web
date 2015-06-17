@@ -216,14 +216,19 @@ $(function() {
 		
 	});
 	
-	$( "#frmCadastrarCliente" ).submit(function( event ) {
-				
+	$('#btnEncontrarHorarios').click(function (e) {
 		event.preventDefault();		
+	});	
+	
+	$('#cmbClientes').on('change', function(evt, params) {
+		if (params.selected == "0") {
+			$('#modalCadastrarCliente').modal('show');
+		}
+	});
 		
-		var cpfCadastroCliente = $.trim($("#cpfCadastroCliente").val()).replace(/\D/g,''); //Replace remove caracteres não numéricos
-		
-		alert('cpfCadastroCliente: ' + cpfCadastroCliente);
-		
+	$( "#modalCadastrarClienteForm" ).submit(function( event ) {				
+		event.preventDefault();	
+		alert('cadastrar');		
 	});
 	
 });

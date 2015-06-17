@@ -57,11 +57,11 @@ include 'includes/navegacao/navbar.php';
 									</div>
 								</div>
 								<div class="box-content">
-									
-										<div class="row">
+									<form action="#" id="frmPesquisarHorarios" class="form-horizontal">
+										<div class="row">											
 											<div class="col-md-6 ">
 											  <!-- BEGIN Left Side -->
-											  <form action="#" id="frmPesquisarHorarios" class="form-horizontal">
+											  
 												<div class="form-group">
 													<label class="col-sm-3 col-lg-2 control-label">Unidade</label>
 													<div class="col-sm-9 col-lg-10 controls">
@@ -76,7 +76,24 @@ include 'includes/navegacao/navbar.php';
 														<input class="form-control date-picker" id="dataAgendamento" size="16" type="text" value="" />
 													</div>
 												</div>
+												
 												<div class="form-group">
+													<label class="col-sm-3 col-lg-2 control-label">Cliente</label>
+													<div class="col-sm-9 col-lg-10 controls">
+														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre" tabindex="6">
+															<option value=""></option>
+															<option value="0">CADASTRAR NOVO CLIENTE</option>
+															<option value="1">Maria</option>
+															<option value="2">Joana</option>
+														</select>
+													</div>
+												</div>
+											
+											  <!-- END Left Side -->
+										   </div>
+										   <div class="col-md-6 ">
+											  <!-- BEGIN Right Side -->
+											  	<div class="form-group">
 													<label class="col-sm-3 col-lg-2 control-label">Pacotes Especiais</label>
 													<div class="col-sm-9 col-lg-10 controls">
 														<select id="pacotesAgendamento" class="form-control chosen" data-placeholder="Selecione" tabindex="3">
@@ -123,71 +140,21 @@ include 'includes/navegacao/navbar.php';
 															<option value="2">Buço</option>
 														</select>
 													</div>
-												</div>
-												<div class="form-group">
-													<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2">
-													   <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Encontrar Horários</button>
-													</div>
-												</div>
-												</form>
-											  <!-- END Left Side -->
-										   </div>
-										   <div class="col-md-6 ">
-											  <!-- BEGIN Right Side -->
-											  <form action="#" id="frmCadastrarCliente" class="form-horizontal">
-												<div class="form-group">
-													<label class="col-sm-3 col-lg-2 control-label">Cliente</label>
-													<div class="col-sm-9 col-lg-10 controls">
-														<select id="listaClientes" class="form-control chosen" data-placeholder="Selecione" tabindex="6">
-															<option value=""> </option>
-															<option value="1">Maria</option>
-															<option value="2">Joana</option>
-														</select>
-													</div>
-												</div>
-												<div class="form-group">
-													<label for="textfield2" class="col-xs-3 col-lg-2 control-label">Nome</label>
-													<div class="col-sm-9 col-lg-10 controls">
-														<input type="text" id="nomeCadastroCliente" placeholder="Sem acentos" class="form-control">
-													</div>
-												</div>
-												
-												<div class="form-group">
-													<label class="col-sm-3 col-lg-2 control-label">CPF</label>
-													<div class="col-sm-9 col-lg-10 controls">
-														<input class="form-control col-md-5" type="text" id="cpfCadastroCliente" data-mask="999.999.999-99" placeholder="">
-														<span class="help-inline">999.999.999-99</span>
-													</div>
-												</div>
-
-												<div class="form-group">
-													<label class="col-sm-3 col-lg-2 control-label">E-mail</label>
-													<div class="col-sm-9 col-lg-10 controls">
-														<div class="input-group">
-															<span class="input-group-addon">@</span>
-															<input class="form-control" type="text" id="emailCadastroCliente" placeholder="E-mail" />
-														</div>
-													</div>
-												</div>
-												
-												<div class="form-group">
-													<label class="col-sm-3 col-lg-2 control-label">Celular</label>
-													<div class="col-sm-9 col-lg-10 controls">
-														<input class="form-control col-md-5" type="text" id="celularCadastroCliente" data-mask="(99) 9999-9999" placeholder="">
-														<span class="help-inline">(99) 9999-9999</span>
-													</div>
-												</div>
-
-												<div class="form-group">
-													<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2">
-													   <button type="submit" class="btn btn-primary"><i class="fa fa-check"></i> Cadastrar Cliente</button>
-													</div>
-												</div>
-												</form>
+												</div>												
 											  <!-- END Right Side -->
 										   </div>
+										   
+										</div> <!-- Fim row -->
+										<div class="row">
+											<div class="col-md-12 ">
+												<div class="form-group">
+													<div class="col-sm-12 col-sm-offset-3 col-lg-3">
+													   <button type="submit" id="btnEncontrarHorarios" class="btn btn-primary"><i class="fa fa-check"></i> Encontrar Horários</button>
+													</div>
+												</div>
+											</div>
 										</div>
-									 
+										</form>
 								</div>
 							</div>
 						</div>
@@ -197,8 +164,8 @@ include 'includes/navegacao/navbar.php';
 					
 					
 					<div class="row">
-						<div class="col-md-12">
-							<div class="box">
+						<div class="col-md-6">
+							<div class="box" id="manicure">
 								<div class="box-title">
 									<h3><i class="fa fa-calendar-o"></i> Manicure</h3>
 									<div class="box-tool">
@@ -209,7 +176,89 @@ include 'includes/navegacao/navbar.php';
 
 									<div class="row">
 										<div class="col-md-12">
-											<div class="box">
+											<div class="box" id="func1">
+												<div class="box-title">
+													<h3><i class="fa fa-user"></i> Carmem</h3>
+													<div class="box-tool">
+														<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
+													</div>
+												</div>
+												<div class="box-content">
+													<div class="btn-toolbar">
+														<button class="btn btn-pink">09:00</button>
+														<button class="btn btn-pink">09:30</button>
+														<button class="btn btn-pink">10:00</button>
+														<button class="btn btn-gray disabled">10:30</button>
+														<button class="btn btn-pink">11:00</button>
+														<button class="btn btn-gray disabled">11:30</button>
+														<button class="btn btn-pink">12:00</button>
+														<button class="btn btn-pink">12:30</button>
+														<button class="btn btn-pink">13:00</button>
+														<button class="btn btn-pink">13:30</button>
+														<button class="btn btn-pink">14:00</button>
+														<button class="btn btn-pink">14:30</button>
+														<button class="btn btn-gray disabled">15:00</button>
+														<button class="btn btn-gray disabled">15:30</button>
+														<button class="btn btn-pink">16:00</button>
+														<button class="btn btn-pink">17:30</button>
+														<button class="btn btn-pink">18:00</button>													
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box" id="func2">
+												<div class="box-title">
+													<h3><i class="fa fa-user"></i> Kely</h3>
+													<div class="box-tool">
+														<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
+													</div>
+												</div>
+												<div class="box-content">
+													<div class="btn-toolbar">
+														<button class="btn btn-pink">09:00</button>
+														<button class="btn btn-pink">09:30</button>
+														<button class="btn btn-pink">10:00</button>
+														<button class="btn btn-gray disabled">10:30</button>
+														<button class="btn btn-pink">11:00</button>
+														<button class="btn btn-gray disabled">11:30</button>
+														<button class="btn btn-pink">12:00</button>
+														<button class="btn btn-pink">12:30</button>
+														<button class="btn btn-pink">13:00</button>
+														<button class="btn btn-pink">13:30</button>
+														<button class="btn btn-pink">14:00</button>
+														<button class="btn btn-pink">14:30</button>
+														<button class="btn btn-gray disabled">15:00</button>
+														<button class="btn btn-gray disabled">15:30</button>
+														<button class="btn btn-pink">16:00</button>
+														<button class="btn btn-pink">17:30</button>
+														<button class="btn btn-pink">18:00</button>													
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>						
+						</div>
+						
+						<div class="col-md-6">
+							<div class="box" id="manicure">
+								<div class="box-title">
+									<h3><i class="fa fa-calendar-o"></i> Escovista</h3>
+									<div class="box-tool">
+										<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
+									</div>
+								</div>
+								<div class="box-content">
+
+									<div class="row">
+										<div class="col-md-12">
+											<div class="box" id="func1">
 												<div class="box-title">
 													<h3><i class="fa fa-user"></i> Ana</h3>
 													<div class="box-tool">
@@ -243,7 +292,7 @@ include 'includes/navegacao/navbar.php';
 									
 									<div class="row">
 										<div class="col-md-12">
-											<div class="box">
+											<div class="box" id="func2">
 												<div class="box-title">
 													<h3><i class="fa fa-user"></i> Tati</h3>
 													<div class="box-tool">
@@ -277,8 +326,9 @@ include 'includes/navegacao/navbar.php';
 
 								</div>
 							</div>						
-						</div>
-					</div>
+						</div>						
+						
+					</div> <!-- Fim Row Manicure/Escovista-->
 
 					<!-- END Main Content -->
 					
@@ -300,7 +350,59 @@ include 'includes/navegacao/navbar.php';
 			
         </div>
         <!-- END Container -->
+		
+		<!-- BEGIN MODALS -->
+		<div id="modalCadastrarCliente" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h3 id="modalCadastrarClienteTitulo">Cadastrar Cliente</h3>
+					</div>
+					<form action="#" id="modalCadastrarClienteForm" method="post" class="form-horizontal" id="validation-form">
+						<div class="modal-body">						
+							<div class="form-group">
+								<label for="textfield2" class="col-xs-3 col-lg-2 control-label">Nome</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<input type="text" id="nomeCadastroCliente" placeholder="Sem acentos" class="form-control">
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">CPF</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<input class="form-control col-md-5" type="text" id="cpfCadastroCliente" data-mask="999.999.999-99" placeholder="">
+									<span class="help-inline">999.999.999-99</span>
+								</div>
+							</div>
 
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">E-mail</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<div class="input-group">
+										<span class="input-group-addon">@</span>
+										<input class="form-control" type="text" id="emailCadastroCliente" placeholder="E-mail" />
+									</div>
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">Celular</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<input class="form-control col-md-5" type="text" id="celularCadastroCliente" data-mask="(99) 9999-9999" placeholder="">
+									<span class="help-inline">(99) 9999-9999</span>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="submit" class="btn" align="left" id="modalCadastrarClienteSalvar">Salvar</button>
+							<button class="btn btn-primary" data-dismiss="modal" id="modalCadastrarClienteFechar">Fechar</button>						
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
         <!--page specific plugin scripts-->
