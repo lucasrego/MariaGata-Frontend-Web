@@ -57,19 +57,6 @@ $(function() {
     //---------------- Syntax Highlighter --------------------//
     window.prettyPrint && prettyPrint();
 
-    //----------------------- Chosen Select ---------------------//
-    if (jQuery().chosen) {
-        $(".chosen").chosen({
-            no_results_text: "Oops, nothing found!",
-            width: "100%"
-        });
-
-        $(".chosen-with-diselect").chosen({
-            allow_single_deselect: true,
-            width: "100%"
-        });
-    }
-    
     //--------------- Password Strength Indicator ----------------//
     if (jQuery().pwstrength) {
         $('input[data-action="pwindicator"]').pwstrength();
@@ -98,11 +85,7 @@ $(function() {
         });
     }
     
-    //------------------------ Date Picker ------------------------//
-    if (jQuery().datepicker) {
-        $('.date-picker').datepicker();
-    }
-
+   
     //------------------------ Date Range Picker ------------------------//
     if (jQuery().daterangepicker) {
         //Date Range Picker

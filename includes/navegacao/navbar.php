@@ -1,5 +1,5 @@
 <!-- BEGIN Navbar -->
-<div id="navbar" class="navbar">
+<div id="navbar" class="navbar navbar-fixed">
 	<button type="button" class="navbar-toggle navbar-btn collapsed" data-toggle="collapse" data-target="#sidebar">
 		<span class="fa fa-bars"></span>
 	</button>

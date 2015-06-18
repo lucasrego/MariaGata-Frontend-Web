@@ -53,16 +53,13 @@
 			background: @grayLighter;
 			cursor: pointer;
 		}
-		&.day.disabled {
-			color: @grayLighter;
-		}
 		&.old,
 		&.new {
 			color: @grayLight;
 		}
 		&.active,
 		&.active:hover {
-			.buttonBackground(@btnPrimaryBackground, spin(@btnPrimaryBackground, 20));
+			.buttonBackground(@primaryButtonBackground, spin(@primaryButtonBackground, 20));
 			color: #fff;
 			text-shadow: 0 -1px 0 rgba(0,0,0,.25);
 		}
@@ -79,7 +76,7 @@
 				background: @grayLighter;
 			}
 			&.active {
-				.buttonBackground(@btnPrimaryBackground, spin(@btnPrimaryBackground, 20));
+				.buttonBackground(@primaryButtonBackground, spin(@primaryButtonBackground, 20));
 				color: #fff;
 				text-shadow: 0 -1px 0 rgba(0,0,0,.25);
 			}
@@ -109,10 +106,10 @@
 		border-top: 1px solid #ddd !important;
 	}*/
 }
-.input-append,
-.input-prepend {
+.input-group,
+.input-group {
 	&.date {
-		.add-on i {
+		.input-group-addon i {
 			display: block;
 			cursor: pointer;
 			width: 16px;

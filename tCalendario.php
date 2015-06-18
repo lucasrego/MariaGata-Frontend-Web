@@ -12,6 +12,7 @@ include 'includes/navegacao/navbar.php';
 		<!--page specific css styles-->
         <link rel="stylesheet" href="assets/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" href="assets/fullcalendar/fullcalendar/fullcalendar.css" />
+		<link rel="stylesheet" href="assets/gritter/css/jquery.gritter.css">
 
         <!-- BEGIN Container -->
         <div class="container" id="main-container">
@@ -23,7 +24,7 @@ include 'includes/navegacao/navbar.php';
 					<!-- BEGIN Page Title -->
 					<div class="page-title">
 						<div>
-							<h1><i class="fa fa-clock-o"></i> Consultar Agenda</h1>
+							<h1><i class="fa fa-book"></i> Consultar Agenda</h1>
 							<h4>Agendamentos Maria Gata</h4>
 						</div>
 					</div>
@@ -71,11 +72,7 @@ include 'includes/navegacao/navbar.php';
 											   <p>Funcionário:</p>
 											   <p>
 												 <select id="cmbFuncionario" data-placeholder="Funcionário" class="col-md-12 chosen">
-												   <option value="">Todos</option>
-												   <option value="1">Ana</option>
-												   <option value="2">Tati</option>
-												   <option value="3">Carmem</option>
-												   <option value="4">Kely</option>
+													<option value='' selected>Todos</option>
 												 </select>
 											   </p>
 											   <p>&nbsp;</p>
@@ -113,7 +110,54 @@ include 'includes/navegacao/navbar.php';
             <!-- END Content -->
         </div>
         <!-- END Container -->
-
+				
+		<!-- MODAL CONSULTAR/CANCELAR AGENDAMENTO -->
+		<div id="modalConsultarAgendamento" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h3 id="modalConsultarAgendamentoTitulo">Dados do Agendamento</h3>
+					</div>
+					<form action="#" id="modalConsultarAgendamentoForm" method="post" class="form-horizontal" id="validation-form">
+						<input type="hidden" id="modalConsultarAgendamentoLabelAgendamento" value="" />
+						<div class="modal-body">
+							<div class="form-group">
+								<label for="textfield2" class="col-xs-3 col-lg-2 control-label">Cliente</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<label for="textfield2" id="modalConsultarAgendamentoLabelCliente" class="control-label"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="textfield2" class="col-xs-3 col-lg-2 control-label">Data</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<label for="textfield2" id="modalConsultarAgendamentoLabelData" class="control-label"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="textfield2" class="col-xs-3 col-lg-2 control-label">Serviços</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<label for="textfield2" id="modalConsultarAgendamentoLabelServicos" class="control-label"></label>
+								</div>
+							</div>							
+							<div class="form-group">
+								<label for="textfield2" class="col-xs-3 col-lg-2 control-label">Funcionários</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<label for="textfield2" id="modalConsultarAgendamentoLabelFuncionarios" class="control-label"></label>
+								</div>
+							</div>
+							
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-danger" align="left" id="modalConsultarAgendamentoCancelar">Cancelar Agendamento</button>
+							<button class="btn " data-dismiss="modal" id="modalConsultarAgendamentoFechar">Fechar</button>		
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- FIM MODAL CONFIRMAR AGENDAMENTO -->
+		
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
          <!--page specific plugin scripts-->
@@ -122,10 +166,12 @@ include 'includes/navegacao/navbar.php';
 		<script src='assets/fullcalendar/lib/jquery-ui.custom.min.js'></script>
 		<script src="assets/fullcalendar/fullcalendar/fullcalendar.min.js"></script>
 		<script src='assets/fullcalendar/lang/pt-br.js'></script>
+		<script src="assets/gritter/js/jquery.gritter.js"></script>
 
         <!--flaty scripts-->
         <script src="js/base.js"></script>
 		<script src="js/calendario.js"></script>
+		<script src="js/flaty.js"></script>
 
     </body>
 </html>

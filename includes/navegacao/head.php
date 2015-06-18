@@ -22,7 +22,7 @@
          <link rel="shortcut icon" href="img/favicon.png">
 		
     </head>
-    <body>
+    <body class="skin-pink">
 	
 	<?php
 		include_once "includes/util/analyticstracking.php";

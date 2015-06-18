@@ -1,3 +1,10 @@
+function exibirMensagem(titulo, msg) {
+	$.gritter.add({
+		title: titulo,
+		text: msg
+	});
+}
+
 $(function() {
 	
 	$( document ).ajaxStart(function() {
@@ -9,10 +16,11 @@ $(function() {
 	});
 
 	$( document ).on( 'submit', 'form', function( e ) {
-		//$('.ajax-loading').show();
+		//Previne submit dos formularios. Será controlado pelo clique nos botões
+		event.preventDefault();
 	});
 	
-    //---------------- Sidebar -------------------------------//
+	//---------------- Sidebar -------------------------------//
     //Scrollable fixed sidebar
     var scrollableSidebar = function() {
         if ($('#sidebar.sidebar-fixed').size() == 0) {
@@ -84,8 +92,9 @@ $(function() {
 	//----------------------- Chosen Select ---------------------//
     if (jQuery().chosen) {
         $(".chosen").chosen({
-            no_results_text: "Oops, não encontramos nada começando com: ",
-            width: "100%"
+            no_results_text: "Ops, não encontramos nada com: ",
+            width: "100%",
+			search_contains: true
         });
 
         $(".chosen-with-diselect").chosen({

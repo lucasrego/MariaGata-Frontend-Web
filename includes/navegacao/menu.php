@@ -1,5 +1,5 @@
 <!-- BEGIN Sidebar -->
-<div id="sidebar" class="navbar-collapse collapse">
+<div id="sidebar" class="navbar-collapse collapse sidebar-fixed">
 	
 	<?php
 		//if ($_SESSION['condominio'] != "") {
@@ -18,9 +18,17 @@
 		<li>
 			<a href="tAgendar.php">
 				<i class="fa fa-clock-o"></i>
-				<span>Agendar</span>
+				<span>Novo Agendamento</span>
 			</a>
 		</li>
+		
+		<li>
+			<a href="tCalendario.php">
+				<i class="fa fa-book"></i>
+				<span>Consultar Agenda</span>
+			</a>
+		</li>
+		
 		<!--
 		<li>
 			<a href="#" class="dropdown-toggle">
