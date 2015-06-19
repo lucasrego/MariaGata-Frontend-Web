@@ -108,6 +108,7 @@ $(function() {
 								dataAgendamento: $(this).attr('dataAgendamento'),
 								dataCriacao: $(this).attr('dataCriacao'),
 								nomeCliente: $(this).attr('nomeCliente'),
+								celularCliente: $(this).attr('celularCliente'),
 								horaInicio: $(this).attr('horaInicio'),
 								funcionarios: $(this).attr('funcionarios')
 							});
@@ -171,7 +172,7 @@ $(function() {
 					
 					$('#modalConsultarAgendamentoLabelAgendamento').val(calEvent.id);
 					$('#modalConsultarAgendamentoLabelData').html(calEvent.dataAgendamento + " " + calEvent.horaInicio + 'h');
-					$('#modalConsultarAgendamentoLabelCliente').html(calEvent.nomeCliente);
+					$('#modalConsultarAgendamentoLabelCliente').html(calEvent.nomeCliente + " (" + calEvent.celularCliente + ")");
 					$('#modalConsultarAgendamentoLabelServicos').html(servicos);
 					$('#modalConsultarAgendamentoLabelFuncionarios').html(funcionarios);
 								

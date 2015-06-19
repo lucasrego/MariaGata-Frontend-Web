@@ -16,7 +16,7 @@
 		</li>
 		
 		<li>
-			<a href="tAgendar.php">
+			<a href="index.php">
 				<i class="fa fa-clock-o"></i>
 				<span>Novo Agendamento</span>
 			</a>

@@ -9,7 +9,7 @@ $(function() {
 			startDate: '-1'
 		});
 	}
-	*/	
+	
 	
 	$('.date-picker').datepicker({
 		format: "dd/mm/yyyy",
@@ -21,7 +21,18 @@ $(function() {
 		todayHighlight: true,
 		toggleActive: true
 	});
-
+	
+	$.datepicker.setDefaults( $.datepicker.regional[ "pt-br" ] );
+	
+	$.datepicker.setDefaults({
+	  showOn: "both",
+	  buttonImageOnly: true,
+	  buttonImage: "calendar.gif",
+	  buttonText: "Calendar"
+	});
+	*/	
+	
+	$( "#datepicker" ).datepicker();
 	
 	function carregarClientes(clienteParaSelecionar) {
 		
@@ -216,12 +227,14 @@ $(function() {
 		})
 		.done(function(ret) {
 			
-			//Teste se o objeto retornao é JSON, ou seja, existem dados
 			var jsonRetorno = jQuery.parseJSON(ret);
 			
 			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (typeof jsonRetorno.resultado === "undefined") {
 				
+				//Fecha o grupo da pesquisa
+				$('#box-content-pesquisar').css("display", "none");
+			
 				$('#resultadoPesquisa').show();
 				
 				var newPageHorarios = 	'';													
@@ -462,6 +475,14 @@ $(function() {
 		}
 	});
 	
+	$('#btnNovaPesquisa').click(function (e) {
+		
+		//Exibe o grupo da pesquisa
+		$('#box-content-pesquisar').css("display", "block");
+	
+		$('#resultadoPesquisa').hide();
+		
+	});
 	
 	$('#modalCadastrarClienteSalvar').click(function (e) {
 		

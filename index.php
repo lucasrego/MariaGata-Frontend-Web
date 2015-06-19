@@ -10,8 +10,11 @@ include 'includes/navegacao/navbar.php';
 ?>
 
 		<!--page specific css styles-->
+		
+		
+		<link rel="stylesheet" type="text/css" href="assets/jquery-ui/jquery-ui.min.css" />
         <link rel="stylesheet" type="text/css" href="assets/chosen-bootstrap/chosen.min.css" />
-        <link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css" />
+        <!--<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css" />-->
         <link rel="stylesheet" href="assets/gritter/css/jquery.gritter.css">
 		
         <!-- BEGIN Container -->
@@ -51,12 +54,12 @@ include 'includes/navegacao/navbar.php';
 						<div class="col-md-12">
 							<div class="box box-green">
 								<div class="box-title">
-									<h3><i class="fa fa-bars"></i> Pesquisar Horários</h3>
+									<h3><i class="fa fa-bars"></i> Pesquisar</h3>
 									<div class="box-tool">
 										<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
 									</div>
 								</div>
-								<div class="box-content">
+								<div id="box-content-pesquisar" class="box-content">
 									<form action="#" id="frmPesquisarHorarios" class="form-horizontal">
 										<div class="row">											
 											<div class="col-md-6 ">
@@ -77,8 +80,9 @@ include 'includes/navegacao/navbar.php';
 														<div class="input-group date">
 															<input type="text" id="dataAgendamento" class="form-control"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
 														</div>
-														-->
 														<input class="form-control date-picker" id="dataAgendamento" size="16" type="text" value="" />
+														-->
+														<div id="datepicker"></div>
 													</div>
 												</div>
 												
@@ -188,6 +192,9 @@ include 'includes/navegacao/navbar.php';
 						<div class="row">
 							<div class="col-md-12 col-sm-12 col-lg-12">													
 								<div class="form-group">
+									<div class="col-sm-10 col-sm-offset-2 col-lg-7 col-lg-offset-5">
+									   <button type="button" id="btnNovaPesquisa" class="btn btn-gray"><i class="fa fa-check"></i> Nova Pesquisa</button>
+									</div>
 									<div class="col-sm-10 col-sm-offset-2 col-lg-7 col-lg-offset-5">
 									   <button type="button" id="btnConfirmarAgendamento" class="btn btn-primary"><i class="fa fa-check"></i> Agendar</button>
 									</div>
@@ -333,10 +340,11 @@ include 'includes/navegacao/navbar.php';
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
         <!--page specific plugin scripts-->
+		<script type="text/javascript" src="assets/jquery-ui/jquery-ui.min.js"></script>
 		<script type="text/javascript" src="assets/chosen-bootstrap/chosen.jquery.min.js"></script>
         <script type="text/javascript" src="assets/bootstrap-inputmask/bootstrap-inputmask.min.js"></script>
-        <script type="text/javascript" src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-		<script src="assets/gritter/js/jquery.gritter.js"></script>
+        <!--<script type="text/javascript" src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>-->
+		<script src="assets/gritter/js/jquery.gritter.min.js"></script>
 		
         <!--flaty scripts-->
 		<script src="js/base.js"></script>

@@ -166,7 +166,7 @@ include 'includes/navegacao/navbar.php';
 		<script src='assets/fullcalendar/lib/jquery-ui.custom.min.js'></script>
 		<script src="assets/fullcalendar/fullcalendar/fullcalendar.min.js"></script>
 		<script src='assets/fullcalendar/lang/pt-br.js'></script>
-		<script src="assets/gritter/js/jquery.gritter.js"></script>
+		<script src="assets/gritter/js/jquery.gritter.min.js"></script>
 
         <!--flaty scripts-->
         <script src="js/base.js"></script>
