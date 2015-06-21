@@ -13,9 +13,11 @@ include 'includes/navegacao/navbar.php';
 		
 		
 		<link rel="stylesheet" type="text/css" href="assets/jquery-ui/jquery-ui.min.css" />
+		<link rel="stylesheet" type="text/css" href="assets/jquery-ui/siena.datepicker.css" />
         <link rel="stylesheet" type="text/css" href="assets/chosen-bootstrap/chosen.min.css" />
         <!--<link rel="stylesheet" type="text/css" href="assets/bootstrap-datepicker/css/datepicker.css" />-->
         <link rel="stylesheet" href="assets/gritter/css/jquery.gritter.css">
+		
 		
         <!-- BEGIN Container -->
         <div class="container" id="main-container">
@@ -54,7 +56,7 @@ include 'includes/navegacao/navbar.php';
 						<div class="col-md-12">
 							<div class="box box-green">
 								<div class="box-title">
-									<h3><i class="fa fa-bars"></i> Pesquisar</h3>
+									<h3><i class="fa fa-search"></i> Pesquisar</h3>
 									<div class="box-tool">
 										<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
 									</div>
@@ -75,26 +77,26 @@ include 'includes/navegacao/navbar.php';
 												</div>
 												<div class="form-group">
 													<label class="col-sm-3 col-lg-2 control-label">Data</label>
-													<div class="col-sm-5 col-lg-3 controls">
+													<div class="col-sm-9 col-lg-10 controls">
 														<!--
-														<div class="input-group date">
-															<input type="text" id="dataAgendamento" class="form-control"><span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
-														</div>
-														<input class="form-control date-picker" id="dataAgendamento" size="16" type="text" value="" />
-														-->
 														<div id="datepicker"></div>
+														<div class="datepicker ll-skin-siena"></div>
+														<input class="form-control" id="dataAgendamento" type="text" value="" />
+														-->
+														<select id="dataAgendamento" class="form-control chosen" data-placeholder="Selecione" tabindex="6">
+														</select>														
 													</div>
 												</div>
 												
 												<div class="form-group">
-													<label class="col-sm-2 col-lg-2 control-label">Cliente</label>
-													<div class="col-sm-8 col-lg-8 controls">
+													<label class="col-sm-3 col-lg-2 control-label">Cliente</label>
+													<div class="col-sm-6 col-lg-7 controls">
 														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre" tabindex="6">
 															
 														</select>
 													</div>
 													<div class="col-sm-2 col-lg-2">
-													   <button type="submit" id="btnCadastrarCliente" class="btn btn-inverse btn-sm"><i class="fa fa-check"></i> Novo</button>
+													   <button type="submit" id="btnCadastrarCliente" class="btn btn-inverse btn-smbtn-sm"><i class="fa fa-check"></i> Novo</button>
 													</div>
 												</div>											
 											  <!-- END Left Side -->
@@ -164,31 +166,32 @@ include 'includes/navegacao/navbar.php';
 					<div id="resultadoPesquisa">
 						<div class="row">
 							<div class="col-md-6">
-								<div class="box" id="manicure">
+								<div class="box" id="boxEsmalteria">
 									<div class="box-title">
 										<h3><i class="fa fa-arrow-circle-right"></i> Esmalteira</h3>
 										<div class="box-tool">
 											<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
 										</div>
 									</div>
-									<div class="box-content" id="boxEsmalteria"></div>
+									<div class="box-content" id="boxEsmalteriaConteudo"></div>
 								</div>
 							</div>
 							
 							<div class="col-md-6">
-								<div class="box" id="manicure">
+								<div class="box" id="boxEscovaria">
 									<div class="box-title">
 										<h3><i class="fa fa-arrow-circle-right"></i> Escovaria</h3>
 										<div class="box-tool">
 											<a data-action="collapse" href="#"><i class="fa fa-chevron-up"></i></a>
 										</div>
 									</div>
-									<div class="box-content" id="boxEscovaria"></div>
+									<div class="box-content" id="boxEscovariaConteudo"></div>
 								</div>
 							</div>					
 							
 						</div> <!-- Fim Row Manicure/Escovista-->
 						
+						<!--
 						<div class="row">
 							<div class="col-md-12 col-sm-12 col-lg-12">													
 								<div class="form-group">
@@ -201,6 +204,11 @@ include 'includes/navegacao/navbar.php';
 								</div>
 							</div>
 						</div>
+						-->
+						<p>
+							<button type="button" id="btnNovaPesquisa" class="btn btn-gray"><i class="fa fa-check"></i> Nova Pesquisa</button>
+							<button type="button" id="btnConfirmarAgendamento" class="btn btn-primary"><i class="fa fa-check"></i> Agendar</button>
+						</p>
 					</div> <!-- FIM DIV resultadoPesquisa -->
 					
 					<!-- END Main Content -->
@@ -283,7 +291,7 @@ include 'includes/navegacao/navbar.php';
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-						<h3 id="modalConfirmarAgendamentoTitulo">Confirmar Agendamento?</h3>
+						<h3 id="modalConfirmarAgendamentoTitulo">Confirma Agendamento?</h3>
 					</div>
 					<form action="#" id="modalConfirmarAgendamentoForm" method="post" class="form-horizontal" id="validation-form">
 						<div class="modal-body">
@@ -341,6 +349,7 @@ include 'includes/navegacao/navbar.php';
         
         <!--page specific plugin scripts-->
 		<script type="text/javascript" src="assets/jquery-ui/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="assets/jquery-ui/datepicker-pt-BR.js"></script>
 		<script type="text/javascript" src="assets/chosen-bootstrap/chosen.jquery.min.js"></script>
         <script type="text/javascript" src="assets/bootstrap-inputmask/bootstrap-inputmask.min.js"></script>
         <!--<script type="text/javascript" src="assets/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>-->
@@ -350,6 +359,6 @@ include 'includes/navegacao/navbar.php';
 		<script src="js/base.js"></script>
 		<script src="js/agendar.js"></script>
 		<script src="js/flaty.js"></script>
-
+		
     </body>
 </html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="utf-8">		
+        <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>Maria Gata</title>
         <meta name="description" content="">
@@ -19,7 +19,9 @@
         <link rel="stylesheet" href="css/flaty.css">
         <link rel="stylesheet" href="css/flaty-responsive.css">
 
-         <link rel="shortcut icon" href="img/favicon.png">
+        <!--
+		<link rel="shortcut icon" href="img/favicon.png">
+		-->
 		
     </head>
     <body class="skin-pink">

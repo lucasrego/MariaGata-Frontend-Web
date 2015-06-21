@@ -1,38 +1,40 @@
 $(function() {
 	//------------------------ Date Picker ------------------------//
 	/*
-	if (jQuery().datepicker) {
-		$('.date-picker').datepicker({
-			autoclose: true,
-			format: 'dd/mm/yyyy',
-			language: 'pt-BR',
-			startDate: '-1'
-		});
+	$( "#dataAgendamento" ).datepicker({
+		minDate: 0,
+		dateFormat: "DD, d MM, yy"
+	});
+	$( "#dataAgendamento" ).datepicker( $.datepicker.regional[ "pt-BR" ] );
+	
+	
+	$( ".datepicker" ).datepicker({
+		inline: true,
+		showOtherMonths: true
+	});
+	*/
+	
+	//Preencher datas disponíveis
+	function carregarDatas(qtdDiasCarregar) {
+		
+		$('#dataAgendamento').append("<option value='' selected>Selecione</option>");	
+		for (i = 0; i < qtdDiasCarregar; i++) {
+			var d = new Date();
+			d.setDate( d.getDate() + i );
+			var dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+			dia = d.getDay(); //0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sab
+			nome_dia = dias[dia];
+			mes = d.getMonth() + 1;
+			data_id = d.getFullYear() + "/" + mes + "/" + d.getDate();
+			data_exibicao = d.getDate() + "/" + mes + "/" + d.getFullYear() + " (" + nome_dia + ")";
+			if ((dia != 0)&&((dia != 1))) {
+				$('#dataAgendamento').append('<option value=' + data_id + '>' + data_exibicao + '</option>');
+			}		
+		}
+		$('#dataAgendamento').trigger('chosen:updated');
+		
 	}
-	
-	
-	$('.date-picker').datepicker({
-		format: "dd/mm/yyyy",
-		weekStart: 1,
-		language: "pt-BR",
-		forceParse: false,
-		daysOfWeekDisabled: "0,1",
-		autoclose: true,
-		todayHighlight: true,
-		toggleActive: true
-	});
-	
-	$.datepicker.setDefaults( $.datepicker.regional[ "pt-br" ] );
-	
-	$.datepicker.setDefaults({
-	  showOn: "both",
-	  buttonImageOnly: true,
-	  buttonImage: "calendar.gif",
-	  buttonText: "Calendar"
-	});
-	*/	
-	
-	$( "#datepicker" ).datepicker();
+	carregarDatas(30);
 	
 	function carregarClientes(clienteParaSelecionar) {
 		
@@ -56,10 +58,9 @@ $(function() {
 			var jsonRetorno = jQuery.parseJSON(ret);
 			var selected = "";
 			
-			$('#cmbClientes').empty();
+			$('#cmbClientes').empty();			
 			
-			
-			$("#cmbClientes").append( "<option value=''>Selecione ou cadastre</option>");
+			$("#cmbClientes").append( "<option value=''>Selecione ou cadastre um novo</option>");
 				
 			$.each(jsonRetorno, function( index, value ) {
 				
@@ -149,7 +150,7 @@ $(function() {
 		
 		//Valida dados de cadastro
 		var unidadeAgendamento = $.trim($("#unidadeAgendamento").val());
-		dataAgendamento = $.trim($("#dataAgendamento").val());
+		dataAgendamento = $("#dataAgendamento").val();
 		var pacotesAgendamento = $.trim($("#pacotesAgendamento").val());
 		var esmalteriaAgendamento = $.trim($("#esmalteriaAgendamento").val());
 		var escovariaAgendamento = $.trim($("#escovariaAgendamento").val());
@@ -184,14 +185,16 @@ $(function() {
 		
 		if (unidadeAgendamento != 1) {
 			exibirMensagem('Atenção', 'Selecione a <span style="color:#00FF00">UNIDADE</span> para atendimento.');
+			$("#unidadeAgendamento").trigger('chosen:open');
 			return false;
 		}
-		if (dataAgendamento == "") {
-			exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">DATA</span> não foi preenchido.');			
+		if (dataAgendamento == '') {
+			exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">DATA</span> não foi preenchido.');
+			$("#dataAgendamento").datepicker( "show" );			
 			return false;
 		} else {
-			dataAgendamentoExibicao = dataAgendamento;
-			dataAgendamento = dataAgendamento.split("/")[2] + "-" + dataAgendamento.split("/")[1] + "-" + dataAgendamento.split("/")[0];
+			dataAgendamentoExibicao = $('#dataAgendamento option:selected').text();
+			dataAgendamento = $('#dataAgendamento').val();
 		}
 		if (servicos == "") {
 			exibirMensagem('Atenção', 'Nenhum <span style="color:#00FF00">PACOTE ou SERVIÇO</span> selecionado.');
@@ -204,8 +207,8 @@ $(function() {
 		
 		//exibirMensagem('Atenção', 'unidadeAgendamento: ' + unidadeAgendamento + ", dataAgendamento: " + dataAgendamento + ", servicos: " + servicos);
 					
-		$('#boxEsmalteria').html("");
-		$('#boxEscovaria').html("");
+		$('#boxEsmalteriaConteudo').html("");
+		$('#boxEscovariaConteudo').html("");
 		
 		//Consultar disponibilidade de profissionais e os horário livres
 		$.ajax({
@@ -259,11 +262,11 @@ $(function() {
 					
 					//Obtem e seta a div correspondente ao grupo
 					if (value.GSER_ID == 1) {
-						divGrupo = $('#boxEsmalteria');
+						divGrupo = $('#boxEsmalteriaConteudo');
 						classeBotaoDisponivel = "btnEsmalteriaDisponivel";
 						temEsmalteria = true;
 					} else {
-						divGrupo = $('#boxEscovaria');
+						divGrupo = $('#boxEscovariaConteudo');
 						classeBotaoDisponivel = "btnEscovariaDisponivel";
 						temEscovaria = true;
 					}
@@ -307,9 +310,9 @@ $(function() {
 							
 							//Registra horário
 							if (value.FUHB_HorarioBloqueado == "N") {
-								newPageHorarios += "<button id='" + idBotao + "' class='btn btn-pink " + classeBotaoDisponivel + "'>" + horario + "</button>";						
+								newPageHorarios += "<button id='" + idBotao + "' class='btn btn-pink btn-sm " + classeBotaoDisponivel + "'>" + horario + "</button>";						
 							} else {
-								newPageHorarios += "<button id='" + idBotao + "' class='btn btn-gray disabled'>" + horario + "</button>";								
+								newPageHorarios += "<button id='" + idBotao + "' class='btn btn-gray btn-sm disabled'>" + horario + "</button>";								
 							}
 						//}
 					
@@ -319,9 +322,9 @@ $(function() {
 						
 						//Registra horário
 						if (value.FUHB_HorarioBloqueado == "N") {
-							newPageHorarios += "<button id='" + idBotao + "' class='btn btn-pink " + classeBotaoDisponivel + "'>" + horario + "</button>";	
+							newPageHorarios += "<button id='" + idBotao + "' class='btn btn-pink btn-sm " + classeBotaoDisponivel + "'>" + horario + "</button>";	
 						} else {
-							newPageHorarios += "<button id='" + idBotao + "' class='btn btn-gray disabled'>" + horario + "</button>";
+							newPageHorarios += "<button id='" + idBotao + "' class='btn btn-gray btn-sm disabled'>" + horario + "</button>";
 						}				
 					}
 					
@@ -334,20 +337,32 @@ $(function() {
 						newPageHorarios += "</div>";
 						
 						divGrupo.append(newPageHorarios);
-												
+
 					}
 					
 					ultimoGrupo = value.GSER_ID;
 					ultimoFuncionario = value.FUNC_ID
 					
 					if (value.GSER_ID == 1) {
-						divGrupoAnterior = $('#boxEsmalteria');
+						divGrupoAnterior = $('#boxEsmalteriaConteudo');
 					} else {
-						divGrupoAnterior = $('#boxEscovaria');
+						divGrupoAnterior = $('#boxEscovariaConteudo');
 					}
 					
 				}); //Fim each
-								
+				
+				if (temEsmalteria) {
+					$('#boxEsmalteria').css("display", "block");
+				} else {
+					$('#boxEsmalteria').css("display", "none");
+				}
+				
+				if (temEscovaria) {
+					$('#boxEscovaria').css("display", "block");
+				} else {
+					$('#boxEscovaria').css("display", "none");
+				}
+				
 			} else {			
 				if (jsonRetorno.resultado == 'NAOENCONTRADO') {
 					exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
@@ -411,7 +426,9 @@ $(function() {
 		filial = "";
 		
 		if ($('#cmbClientes').val().trim() == "") {
-			exibirMensagem('Ops!', "Selecione um <span style='color:#00FF00'>cliente</span> existente ou cadastre um novo.");
+			exibirMensagem('Ops!', "Selecione um <span style='color:#00FF00'>CLIENTE</span> existente ou cadastre um novo.");
+			$('#box-content-pesquisar').css("display", "block");
+			$('#cmbClientes').trigger('chosen:open');
 			return false;
 		} else {
 			cliente = $('#cmbClientes').val();
