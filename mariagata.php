@@ -180,45 +180,20 @@ switch ($acao) {
 		
 		$agendamento = $_POST["agendamento"];
 	
-		$sql_query = "SELECT AGEN_GoogleCalendar FROM 
-						agendamento
-						where 
-						AGEN_ID = " . $agendamento . "
-						";
-
-		if ($db->Query($sql_query)) {
-			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
-				$linha = $db->Row(0);
-				$eventogooglecalendar = $linha->AGEN_GoogleCalendar;
-				
-				//CANCELAR AGENDAMENTO BD
-				$update_agendamento["AGEN_Situacao"]  = MySQL::SQLValue('C');
-				$update_agendamento["AGEN_DataCancelamento"]  = MySQL::SQLValue($lsDataHoraAtual);
-				if (! $db->UpdateRows("agendamento", $update_agendamento, array("AGEN_ID" => $agendamento))) {
-					$db->TransactionRollback();
-					$db->Kill();
-					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos cancelar o agendamento [' . $agendamento . ']. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
-					exit;	
-				}
-				
-				//Deleta evento do Google Calendar
-				if ($eventogooglecalendar != "") {
-					//deletarEventoGoogleCalendar($eventogooglecalendar);
-				}
-				
-				$db->TransactionEnd(); //Commit
-				echo '{ "resultado": "SUCESSO", "mensagem": "Agendamento cancelado com sucesso!"}';
-				exit;
-								
-			} else {
-				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Ops! Não não foi possível cancelar o agendamento [' . $agendamento . ']. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)"}';
-				exit;
-			}
+		$update_agendamento["AGEN_Situacao"]  = MySQL::SQLValue('C');
+		$update_agendamento["AGEN_DataCancelamento"]  = MySQL::SQLValue($lsDataHoraAtual);
+		if (! $db->UpdateRows("agendamento", $update_agendamento, array("AGEN_ID" => $agendamento))) {
+			$db->TransactionRollback();
+			$db->Kill();
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos cancelar o agendamento [' . $agendamento . ']. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
+			exit;	
 		} else {
-			echo '{ "resultado": "ERRO", "mensagem": "Ops! Por um problema técnico não conseguimos cancelar o agendamento [' . $agendamento . ']. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
-			exit;
-		}
 		
+			$db->TransactionEnd(); //Commit
+			echo '{ "resultado": "SUCESSO", "mensagem": "Agendamento cancelado com sucesso!"}';
+			exit;
+						
+		}
 		
 		break;
 			
@@ -244,7 +219,7 @@ switch ($acao) {
 				from agendamento a, cliente c, agendamento_funcionario af
 				where a.CLIE_ID = c.CLIE_ID
 				and a.AGEN_ID = af.AGEN_ID
-				and CLIE_CPF = " . $cpf . "
+				and CLIE_CPF = '" . $cpf . "'
 				and AGEN_Situacao = 'A'
 				and AGEN_Data >= '" . date("Y-m-d") . "'
 			) a
@@ -471,7 +446,7 @@ switch ($acao) {
 		
 		//OBTER CLIENTE
 		if ($cpf != "") {
-			if ($db->Query("SELECT CLIE_ID FROM cliente where CLIE_CPF = " . $cpf)) {
+			if ($db->Query("SELECT CLIE_ID FROM cliente where CLIE_CPF = '" . $cpf . "'")) {
 				if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 					
 					$linha = $db->Row(0);
@@ -495,7 +470,7 @@ switch ($acao) {
 					
 				} else {
 					//INSERE CLIENTE
-					$cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf, MySQL::SQLVALUE_NUMBER);
+					$cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf);
 					$cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
 					$cliente["CLIE_Email"]  = MySQL::SQLValue($email);
 					$cliente["CLIE_Celular"] = MySQL::SQLValue($celular);
@@ -519,7 +494,7 @@ switch ($acao) {
 				echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico e não conseguimos agendar seu momento [5]! Tente pelo Whatsapp (71) 8879-1014" }';
 				exit;			
 			}
-		} else { //Fim if se cpf possui valro
+		} else { //Fim if se cpf foi passado
 			
 			//INSERE CLIENTE SEM CPF
 			$cliente["CLIE_CPF"]  = MySQL::SQLValue("");
@@ -634,8 +609,8 @@ switch ($acao) {
 				}
 				
 				//OBTER CLIENTE
-				if ($db->Query("SELECT CLIE_ID FROM cliente where CLIE_CPF = " . $cpf)) {
-					if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {				
+				if ($db->Query("SELECT CLIE_ID FROM cliente where CLIE_CPF = '" . $cpf . "'")) {
+					if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 						$linha = $db->Row(0);
 						$cliente = $linha->CLIE_ID;								
 					} else {
@@ -649,13 +624,17 @@ switch ($acao) {
 					exit;
 				}
 			} else {
-				echo '{ "resultado": "ERRO", "mensagem": "Ops! Não identificamos um identificador de cliente ou CPF." }';
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Não encontramos um identificador de cliente ou CPF para realizar o agendamento." }';
 				exit;
 			}
 		}
 		
 		$filial = $_POST["filial"];
 		$data = $_POST["data"];
+		
+		//echo '{ "resultado": "ERRO", "mensagem": "Data: ' . $data . '" }';
+		//exit;
+				
 		$servicos = $_POST["servicos"];
 		
 		if (isset($_POST["funcionarioEsmalteria"])) {
@@ -790,10 +769,12 @@ switch ($acao) {
 								SELECT 
 									DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
 								FROM 
-									agendamento_funcionario
+									agendamento_funcionario af, agendamento a
 								where 
-									FUNC_ID = " . $funcionarioEsmalteria . "
-									and '" . $data . "' = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
+									a.AGEN_ID = af.AGEN_ID
+									and AGEN_Situacao = 'A'
+									and FUNC_ID = " . $funcionarioEsmalteria . "
+									and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
 									and '" . $horarioEsmalteria . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
 									and '" . $horarioFinalEsmalteria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
 								";
@@ -801,7 +782,7 @@ switch ($acao) {
 						if ($db->Query($sql_query)) {
 							if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 								//deletarEventoGoogleCalendar($eventoCriado->id);
-								echo '{ "resultado": "ERRO", "mensagem": "A duração estimada do(s) serviço(s) de Manicure que você escolheu (' . $duracao . ' min) invade o horário do próximo cliente. Diminua a quantidade de serviços ou escolha outro horário, ok? [' . $data . ' ' . $horarioEsmalteria . ' a ' . $horarioFinalEsmalteria . ']"}';
+								echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $horarioEsmalteria . ' a ' . $horarioFinalEsmalteria . ']"}';
 								exit;
 							}
 						} else {
@@ -855,10 +836,12 @@ switch ($acao) {
 								SELECT 
 									DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
 								FROM 
-									agendamento_funcionario
+									agendamento_funcionario af, agendamento a
 								where 
-									FUNC_ID = " . $funcionarioEscovaria . "
-									and '" . $data . "' = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
+									a.AGEN_ID = af.AGEN_ID
+									and AGEN_Situacao = 'A'
+									and FUNC_ID = " . $funcionarioEscovaria . "
+									and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
 									and '" . $horarioEscovaria . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
 									and '" . $horarioFinalEscovaria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
 								";
@@ -866,7 +849,7 @@ switch ($acao) {
 						if ($db->Query($sql_query)) {
 							if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 								//deletarEventoGoogleCalendar($eventoCriado->id);
-								echo '{ "resultado": "ERRO", "mensagem": "A duração estimada do(s) serviço(s) de Cabelo ou Estética que você escolheu (' . $duracao . ' min) invade o horário do próximo cliente. Diminua a quantidade de serviços ou escolha outro horário, ok? [' . $data . ' ' . $horarioEscovaria . ' a ' . $horarioFinalEscovaria . ']"}';
+								echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $horarioEscovaria . ' a ' . $horarioFinalEscovaria . ']"}';
 								exit;
 							}
 						} else {
