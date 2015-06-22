@@ -11,9 +11,9 @@
 	</a>
 
 	<!-- BEGIN Navbar Buttons -->
+	<!--
 	<ul class="nav flaty-nav pull-right">
 
-		<!-- BEGIN Button User -->
 		<li class="user-profile">
 			<a data-toggle="dropdown" href="#" class="user-menu dropdown-toggle">
 				<img class="nav-user-photo" src="img/avatar/avatar1.jpg" alt="Penny's Photo" />
@@ -23,7 +23,6 @@
 				<i class="fa fa-caret-down"></i>
 			</a>
 
-			<!-- BEGIN User Dropdown -->
 			<ul class="dropdown-menu dropdown-navbar" id="user_menu">
 				<li>
 					<a href="#">
@@ -48,10 +47,10 @@
 					</a>
 				</li>
 			</ul>
-			<!-- BEGIN User Dropdown -->
 		</li>
-		<!-- END Button User -->
 	</ul>
+	-->
+	
 	<!-- END Navbar Buttons -->
 </div>
 <!-- END Navbar -->

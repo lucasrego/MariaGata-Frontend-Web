@@ -108,7 +108,7 @@ switch ($acao) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
-				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Ops! Cliente encontrado." }';
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Nenhum cliente cadastrado no sistema." }';
 				exit;
 			}
 		} else {
@@ -288,6 +288,14 @@ switch ($acao) {
 					f2.FUNC_ID = fa.FUNC_ID
 					and f2.FILI_ID = " . $filial . "
 					and FUAU_Data = '" . $data . "'
+				)
+			and f.FUNC_ID NOT IN
+				(select f3.FUNC_ID
+					from funcionario f3, funcionario_dias_semana_bloqueados fdsb 
+					where 
+					f3.FUNC_ID = fdsb.FUNC_ID
+					and f3.FILI_ID = " . $filial . "
+					and FDSB_Dia = DAYOFWEEK('" . $data . "')
 				)
 			and GSER_ID IN
 				(SELECT distinct sgs.GSER_ID 
@@ -554,7 +562,7 @@ switch ($acao) {
 					(
 						SELECT 
 							a.AGEN_ID,
-							CASE MOD(f.FUNC_ID,9) WHEN 0 THEN '#7D9D0B' WHEN 1 THEN '#1EA994' WHEN 2 THEN '#2985F0' WHEN 3 THEN '#EC2D2D' WHEN 4 THEN '#000000' WHEN 5 THEN '#F02972' WHEN 6 THEN '#7C29F0' WHEN 6 THEN '#CEB517' ELSE '#F0830E' END as color,
+							CASE MOD(c.CLIE_ID, 9) WHEN 0 THEN '#7D9D0B' WHEN 1 THEN '#1EA994' WHEN 2 THEN '#2985F0' WHEN 3 THEN '#EC2D2D' WHEN 4 THEN '#000000' WHEN 5 THEN '#F02972' WHEN 6 THEN '#7C29F0' WHEN 6 THEN '#CEB517' ELSE '#F0830E' END as color,
 							CLIE_Nome,
 							FUNC_Nome,
 							AGFU_HoraInicio as start,

@@ -61,21 +61,22 @@ $(function() {
 			$('#cmbClientes').empty();			
 			
 			$("#cmbClientes").append( "<option value=''>Selecione ou cadastre um novo</option>");
-				
-			$.each(jsonRetorno, function( index, value ) {
-				
-				//Retorno: CLIE_ID, CLIE_Nome, CLIE_CPF, CLIE_Email, CLIE_Celular
-				
-				selected = "";				
-				if (typeof clienteParaSelecionar !== 'undefined') {
-					if (clienteParaSelecionar == value.CLIE_ID) {
-						selected = "selected";
+			
+			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
+			if (typeof jsonRetorno.resultado === "undefined") {				
+				$.each(jsonRetorno, function( index, value ) {
+					//Retorno: CLIE_ID, CLIE_Nome, CLIE_CPF, CLIE_Email, CLIE_Celular
+					selected = "";				
+					if (typeof clienteParaSelecionar !== 'undefined') {
+						if (clienteParaSelecionar == value.CLIE_ID) {
+							selected = "selected";
+						}
 					}
-				}
-				
-				$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
-				
-			}); //Fim each json clientes
+					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
+				}); //Fim each json clientes
+			} else {
+				exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
+			} //Fim teste jsonRetorno.resultado
 			
 			//Atualiza combo chosen
 			$('#cmbClientes').trigger('chosen:updated');

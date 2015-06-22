@@ -91,7 +91,7 @@ include 'includes/navegacao/navbar.php';
 												<div class="form-group">
 													<label class="col-sm-3 col-lg-2 control-label">Cliente</label>
 													<div class="col-sm-6 col-lg-7 controls">
-														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre" tabindex="6">
+														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre um novo" tabindex="6">
 															
 														</select>
 													</div>
@@ -112,7 +112,7 @@ include 'includes/navegacao/navbar.php';
 													</div>
 												</div>
 												<div class="form-group">
-													<label class="col-sm-3 col-lg-2 control-label">Serviços de Unhas</label>
+													<label class="col-sm-3 col-lg-2 control-label">Serviços de Unha</label>
 													<div class="col-sm-9 col-lg-10 controls">
 														<select id="esmalteriaAgendamento" class="form-control chosen" data-placeholder="Selecione" tabindex="4">
 															<option value="">Selecione</option>
