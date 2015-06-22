@@ -106,23 +106,23 @@ $(function() {
 			
 			//Teste se o objeto retornao é JSON, ou seja, existem dados
 			var jsonRetorno = jQuery.parseJSON(ret);
-			
-			$.each(jsonRetorno, function( index, value ) {
+				
+			$.each(jsonRetorno, function( index, value ) {				
 				
 				if (value.SERV_Tipo == "PA") {
-					$("#pacotesAgendamento").append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+					$("#pacotesAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
 				}
 				if (value.SERV_Tipo == "EC") {
-					$("#escovariaAgendamento").append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+					$("#escovariaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
 				}
 				if (value.SERV_Tipo == "EM") {
-					$("#esmalteriaAgendamento").append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+					$("#esmalteriaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
 				}
 				if (value.SERV_Tipo == "MA") {
-					$("#maquiagemAgendamento").append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
+					$("#maquiagemAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
 				}
 				if (value.SERV_Tipo == "DE") {
-					$("#depilacaoAgendamento").append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
+					$("#depilacaoAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
 				}
 				
 			}); //Fim each json servicos
@@ -145,11 +145,65 @@ $(function() {
 	
 	$('#resultadoPesquisa').hide();
 	
-	$('#btnEncontrarHorarios').click(function (e) {	
+	$('#btnAtendimentoParaleloEsmalteria').click(function (e) {
+		if (atendimentoParalelo == "S") {
+			if ($("#btnAtendimentoParaleloEsmalteria").hasClass("btn-gray")) {
+				$('#btnAtendimentoParaleloEsmalteria').html("Atendimento Paralelo: Sim");
+				$('#btnAtendimentoParaleloEsmalteria').removeClass("btn-gray").addClass( "btn-lime" );				
+			} else {
+				$('#btnAtendimentoParaleloEsmalteria').html("Atendimento Paralelo: Não");
+				$('#btnAtendimentoParaleloEsmalteria').removeClass("btn-gray").addClass( "btn-gray" );
+			}
+			$('.btnEsmalteriaDisponivel').removeClass("btn-lime").addClass( "btn-pink" ); //Limpa os horário selecionados para que o usuário escolha novamente
+		} else {
+			exibirMensagem('Ops!', 'Pelo menos um serviço que permite Atendimento Paralelo precisa ser selecionado');
+		}
+		
+	});
+	
+	$('#btnAtendimentoParaleloEscovaria').click(function (e) {
+		if (atendimentoParalelo == "S") {
+			if ($("#btnAtendimentoParaleloEscovaria").hasClass("btn-gray")) {
+				$('#btnAtendimentoParaleloEscovaria').html("Atendimento Paralelo: Sim");
+				$('#btnAtendimentoParaleloEscovaria').removeClass("btn-gray").addClass( "btn-lime" );
+			} else {
+				$('#btnAtendimentoParaleloEscovaria').html("Atendimento Paralelo: Não");
+				$('#btnAtendimentoParaleloEscovaria').removeClass("btn-gray").addClass( "btn-gray" );
+			}
+			$('.btnEscovariaDisponivel').removeClass("btn-lime").addClass( "btn-pink" ); //Limpa os horário selecionados para que o usuário escolha novamente
+		} else {
+			exibirMensagem('Ops!', 'Pelo menos um serviço que permite Atendimento Paralelo precisa ser selecionado');
+		}
+	});
+	
+	
+	function limparPesquisa() {
+		$("#dataAgendamento").val("");
+		$('#dataAgendamento').trigger('chosen:updated');
+		
+		$("#pacotesAgendamento").val("");
+		$('#pacotesAgendamento').trigger('chosen:updated');
+		
+		$("#esmalteriaAgendamento").val("");
+		$('#esmalteriaAgendamento').trigger('chosen:updated');
+		
+		$("#escovariaAgendamento").val("");
+		$('#escovariaAgendamento').trigger('chosen:updated');
+		
+		$("#maquiagemAgendamento").val("");
+		$('#maquiagemAgendamento').trigger('chosen:updated');
+		
+		$("#depilacaoAgendamento").val("");
+		$('#depilacaoAgendamento').trigger('chosen:updated');
+		
+		$("#cmbClientes").val("");
+		$('#cmbClientes').trigger('chosen:updated');
+	}
+	
+	$('#btnEncontrarHorarios').click(function (e) {
 		
 		$('#resultadoPesquisa').hide();
 		
-		//Valida dados de cadastro
 		var unidadeAgendamento = $.trim($("#unidadeAgendamento").val());
 		dataAgendamento = $("#dataAgendamento").val();
 		var pacotesAgendamento = $.trim($("#pacotesAgendamento").val());
@@ -162,26 +216,32 @@ $(function() {
 		temEsmalteria = false;
 		servicos = "";
 		servicosnome = "";
+		atendimentoParalelo = "N";
 		
 		if ($('#pacotesAgendamento').val() != 0) {
 			servicos += $('#pacotesAgendamento').val() + ",";
-			servicosnome += $("#pacotesAgendamento option:selected").text() + ", ";				
+			servicosnome += $("#pacotesAgendamento option:selected").text() + ", ";
+			atendimentoParalelo = (($("#pacotesAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");	
 		}
 		if ($('#esmalteriaAgendamento').val() != 0) {
 			servicos += $('#esmalteriaAgendamento').val() + ",";
 			servicosnome += $("#esmalteriaAgendamento option:selected").text() + ", ";
+			atendimentoParalelo = (($("#esmalteriaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
 		}
 		if ($('#escovariaAgendamento').val() != 0) {
 			servicos += $('#escovariaAgendamento').val() + ",";
 			servicosnome += $("#escovariaAgendamento option:selected").text() + ", ";
+			atendimentoParalelo = (($("#escovariaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
 		}
 		if ($('#maquiagemAgendamento').val() != 0) {
 			servicos += $('#maquiagemAgendamento').val() + ",";
 			servicosnome += $("#maquiagemAgendamento option:selected").text() + ", ";
+			atendimentoParalelo = (($("#maquiagemAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
 		}
 		if ($('#depilacaoAgendamento').val() != 0) {
 			servicos += $('#depilacaoAgendamento').val() + ",";
 			servicosnome += $("#depilacaoAgendamento option:selected").text() + ", ";
+			atendimentoParalelo = (($("#depilacaoAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
 		}
 		
 		if (unidadeAgendamento != 1) {
@@ -199,7 +259,7 @@ $(function() {
 		}
 		if (servicos == "") {
 			exibirMensagem('Atenção', 'Nenhum <span style="color:#00FF00">PACOTE ou SERVIÇO</span> selecionado.');
-			return false;			
+			return false;
 		} else {
 			//Remove vírgula para servico e virgula + espaço para servicosnome
 			servicos = servicos.substring(0,(servicos.length - 1)).toString();
@@ -236,9 +296,8 @@ $(function() {
 			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (typeof jsonRetorno.resultado === "undefined") {
 				
-				//Fecha o grupo da pesquisa
+				$('#textoBoxPesquisar').html(dataAgendamentoExibicao + " - " + servicosnome);
 				$('#box-content-pesquisar').css("display", "none");
-			
 				$('#resultadoPesquisa').show();
 				
 				var newPageHorarios = 	'';													
@@ -377,15 +436,43 @@ $(function() {
 	});
 	
 	$(document).on('click', '.btnEsmalteriaDisponivel', function (e) {
-		//Limpa a classe dos botões btnEsmalteriaDisponivel. Se não estiver disabled, aplica css do botão selecionado
-		$('.btnEsmalteriaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
-		$(e.target).removeClass( "btn-pink" ).addClass( "btn-lime" );
+		var limiteAtendimentoParaleloEsmalteria = 2;
+		
+		if ($(e.target).hasClass("btn-lime")) {
+			$(e.target).removeClass("btn-lime").addClass("btn-pink");
+		} else {
+			if ($("#btnAtendimentoParaleloEsmalteria").hasClass("btn-gray")) { //Atendimento paralelo desabilitado
+				//Limpa a classe dos botões btnEsmalteriaDisponivel. Se não estiver disabled, aplica css do botão selecionado
+				$('.btnEsmalteriaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
+				$(e.target).removeClass("btn-pink").addClass("btn-lime");
+			} else {			
+				if ($('.btnEsmalteriaDisponivel.btn-lime').length < limiteAtendimentoParaleloEsmalteria) {
+					$(e.target).removeClass("btn-pink").addClass("btn-lime");
+				} else {
+					exibirMensagem('Ops!', 'Apenas ' + limiteAtendimentoParaleloEsmalteria + ' atendimentos em paralelo são permitidos para a Esmalteria. Se quiser alterar, clique em um horário selecionado para liberá-lo.');
+				}
+			}
+		}
 	});
 
 	$(document).on('click', '.btnEscovariaDisponivel', function (e) {
-		//Limpa a classe dos botões btnEscovaria. Se não estiver disabled, aplica css do botão selecionado
-		$('.btnEscovariaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
-		$(e.target).removeClass( "btn-pink" ).addClass( "btn-lime" );
+		var limiteAtendimentoParaleloEscovaria = 2;
+		
+		if ($(e.target).hasClass("btn-lime")) {
+			$(e.target).removeClass("btn-lime").addClass("btn-pink");
+		} else {
+			if ($("#btnAtendimentoParaleloEscovaria").hasClass("btn-gray")) { //Atendimento paralelo desabilitado
+				//Limpa a classe dos botões btnEscovaria. Se não estiver disabled, aplica css do botão selecionado
+				$('.btnEscovariaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
+				$(e.target).removeClass("btn-pink").addClass("btn-lime");
+			} else {
+				if ($('.btnEscovariaDisponivel.btn-lime').length < limiteAtendimentoParaleloEscovaria) {
+					$(e.target).removeClass("btn-pink").addClass("btn-lime");
+				} else {
+					exibirMensagem('Ops!', 'Apenas ' + limiteAtendimentoParaleloEscovaria + ' atendimentos em paralelo são permitidos. Se quiser alterar, clique em um horário selecionado para liberá-lo.');
+				}
+			}
+		}
 	});
 	
 	$('#btnCadastrarCliente').click(function (e) {
@@ -438,47 +525,85 @@ $(function() {
 		filial = $('#unidadeAgendamento').val();
 		
 		if (temEsmalteria) {
-			idSelecionadoEsmalteria = $('.btnEsmalteriaDisponivel.btn-lime').attr('id');
-			if (idSelecionadoEsmalteria === undefined) {
-				msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'>Esmalteria</span>.";
+			var arrayHorariosSelecionados = $('.btnEsmalteriaDisponivel.btn-lime').toArray();			
+			if (arrayHorariosSelecionados.length > 0) {
+				$.each(arrayHorariosSelecionados, function( index ) {
+					nomeProfissionalEsmalteria += arrayHorariosSelecionados[index].id.split("|")[0] + "|";
+					IdProfissionalEsmalteria += arrayHorariosSelecionados[index].id.split("|")[1] + "|";
+					horarioEsmalteria += arrayHorariosSelecionados[index].id.split("|")[2] + "|";
+				});
+				//Remove ultimo caracter "|"
+				nomeProfissionalEsmalteria = nomeProfissionalEsmalteria.substring(0,(nomeProfissionalEsmalteria.length - 1)).toString();
+				IdProfissionalEsmalteria = IdProfissionalEsmalteria.substring(0,(IdProfissionalEsmalteria.length - 1)).toString();
+				horarioEsmalteria = horarioEsmalteria.substring(0,(horarioEsmalteria.length - 1)).toString();
 			} else {
-				nomeProfissionalEsmalteria = idSelecionadoEsmalteria.split("|")[0];
-				IdProfissionalEsmalteria = idSelecionadoEsmalteria.split("|")[1];
-				horarioEsmalteria = idSelecionadoEsmalteria.split("|")[2];
-			}			
+				msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'>Esmalteria</span>.";
+			}
+			
 		}
+		
 		if (temEscovaria) {
-			idSelecionadoEscovaria = $('.btnEscovariaDisponivel.btn-lime').attr('id');
-			if (idSelecionadoEscovaria === undefined) {
-				if ((temEsmalteria)&&((idSelecionadoEsmalteria === undefined)||(idSelecionadoEsmalteria == ""))) {
+			var arrayHorariosSelecionados = $('.btnEscovariaDisponivel.btn-lime').toArray();			
+			if (arrayHorariosSelecionados.length > 0) {
+				$.each(arrayHorariosSelecionados, function( index ) {
+					nomeProfissionalEscovaria += arrayHorariosSelecionados[index].id.split("|")[0] + "|";
+					IdProfissionalEscovaria += arrayHorariosSelecionados[index].id.split("|")[1] + "|";
+					horarioEscovaria += arrayHorariosSelecionados[index].id.split("|")[2] + "|";
+				});
+				//Remove ultimo caracter "|"
+				nomeProfissionalEscovaria = nomeProfissionalEscovaria.substring(0,(nomeProfissionalEscovaria.length - 1)).toString();
+				IdProfissionalEscovaria = IdProfissionalEscovaria.substring(0,(IdProfissionalEscovaria.length - 1)).toString();
+				horarioEscovaria = horarioEscovaria.substring(0,(horarioEscovaria.length - 1)).toString();
+			} else {
+				if ((temEsmalteria)&&(IdProfissionalEsmalteria == "")) {
 					msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'> Esmalteria e Escovaria</span>.";
 				} else {
 					msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'>Escovaria</span>.";
-				}
-			} else {
-				nomeProfissionalEscovaria = idSelecionadoEscovaria.split("|")[0];
-				IdProfissionalEscovaria = idSelecionadoEscovaria.split("|")[1];
-				horarioEscovaria = idSelecionadoEscovaria.split("|")[2];
+				}				
 			}
 		}
-		
+				
 		if (msgNaoSelecionado == "") {
-			//exibirMensagem('OK', nomeProfissionalEsmalteria + "-" + IdProfissionalEsmalteria + "-" + horarioEsmalteria);
 			
-			//Preenche labels do modal de confirmação
 			$('#modalConfirmarAgendamentoLabelUnidade').html($('#unidadeAgendamento option:selected').text());
 			$('#modalConfirmarAgendamentoLabelData').html(dataAgendamentoExibicao);
 			$('#modalConfirmarAgendamentoLabelCliente').html($('#cmbClientes option:selected').text() + " (" + $('#cmbClientes').val() + ")");
 			$('#modalConfirmarAgendamentoLabelServicos').html(servicosnome);
 			
 			if (temEsmalteria) {
-				$('#modalConfirmarAgendamentoLabelEsmalteria').html(nomeProfissionalEsmalteria + ' (' + horarioEsmalteria + 'h)');
+				var profissionaisEsmalteriaExibicao = "";
+				var arrayNomesEsmalteria = nomeProfissionalEsmalteria.split("|");
+				var arrayHorarioEsmalteria = horarioEsmalteria.split("|");
+				
+				//var qtdProfissionais = arrayNomesEsmalteria.length;
+				
+				$.each(arrayNomesEsmalteria, function( index ) {
+					profissionaisEsmalteriaExibicao += arrayNomesEsmalteria[index] + ' (' + arrayHorarioEsmalteria[index] + 'h)' + ', ';
+				});
+				
+				//Remove ultimos 2 caracters ", "
+				profissionaisEsmalteriaExibicao = profissionaisEsmalteriaExibicao.substring(0,(profissionaisEsmalteriaExibicao.length - 2)).toString();
+				
+				$('#modalConfirmarAgendamentoLabelEsmalteria').html(profissionaisEsmalteriaExibicao);
 			} else {
 				$('#modalConfirmarAgendamentoLabelEsmalteria').html('Não pretende utilizar.');
 			}
 			
 			if (temEscovaria) {
-				$('#modalConfirmarAgendamentoLabelEscovaria').html(nomeProfissionalEscovaria + ' (' + horarioEscovaria + 'h)');
+				var profissionaisEscovariaExibicao = "";
+				var arrayNomesEscovaria = nomeProfissionalEscovaria.split("|");
+				var arrayHorarioEscovaria = horarioEscovaria.split("|");
+				
+				//var qtdProfissionais = arrayNomesEsmalteria.length;
+				
+				$.each(arrayNomesEscovaria, function( index ) {
+					profissionaisEscovariaExibicao += arrayNomesEscovaria[index] + ' (' + arrayHorarioEscovaria[index] + 'h)' + ', ';
+				});
+				
+				//Remove ultimos 2 caracters ", "
+				profissionaisEscovariaExibicao = profissionaisEscovariaExibicao.substring(0,(profissionaisEscovariaExibicao.length - 2)).toString();
+				
+				$('#modalConfirmarAgendamentoLabelEscovaria').html(profissionaisEscovariaExibicao);
 			} else {
 				$('#modalConfirmarAgendamentoLabelEscovaria').html('Não pretende utilizar.');
 			}
@@ -495,7 +620,8 @@ $(function() {
 	
 	$('#btnNovaPesquisa').click(function (e) {
 		
-		//Exibe o grupo da pesquisa
+		$('#textoBoxPesquisar').html("Pesquisar");
+		
 		$('#box-content-pesquisar').css("display", "block");
 	
 		$('#resultadoPesquisa').hide();
@@ -571,6 +697,9 @@ $(function() {
 	
 	$('#modalConfirmarAgendamentoConcluir').click(function (e) {
 		
+		//exibirMensagem('teste', IdProfissionalEsmalteria + ' - ' + horarioEsmalteria + ' - ' + IdProfissionalEscovaria + ' - ' + horarioEscovaria);
+		//return false;
+		
 		$.ajax({
 			url: "http://mariagata.com.br/sistema/mariagata.php",
 			type: 'POST',
@@ -600,9 +729,12 @@ $(function() {
 			
 			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (jsonRetorno.resultado == 'SUCESSO') {
-				exibirMensagem('Maria Gata', 'Agendamento realizado com sucesso!');
+				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
+				$('#textoBoxPesquisar').html("Pesquisar");
+				$('#box-content-pesquisar').css("display", "block");
+				limparPesquisa();
 				$('#modalConfirmarAgendamento').modal('hide');
-				$('#resultadoPesquisa').hide();					
+				$('#resultadoPesquisa').hide();
 			} else {
 				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
 			}	

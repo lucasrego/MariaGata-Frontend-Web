@@ -85,7 +85,7 @@ switch ($acao) {
 		
 		$filial = $_POST["filial"];
 
-		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = '" . $filial . "' and FISE_DelecaoLogica = 'N' order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
+		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, 'S' as FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = '" . $filial . "' and FISE_DelecaoLogica = 'N' order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
@@ -640,9 +640,6 @@ switch ($acao) {
 		$filial = $_POST["filial"];
 		$data = $_POST["data"];
 		
-		//echo '{ "resultado": "ERRO", "mensagem": "Data: ' . $data . '" }';
-		//exit;
-				
 		$servicos = $_POST["servicos"];
 		
 		if (isset($_POST["funcionarioEsmalteria"])) {
@@ -769,49 +766,64 @@ switch ($acao) {
 						$linha = $db->Row(0);
 						$duracao = $linha->duracao;
 						
-						//$horarioFinalEsmalteria = $horarioEsmalteria + $duracao; Ex: 09:30 + 120 min
-						$horarioFinalEsmalteria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($horarioEsmalteria)));  //11:30
-
-						//Valida se o horário final invade um horário futuro já reservado				
-						$sql_query = "
-								SELECT 
-									DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
-								FROM 
-									agendamento_funcionario af, agendamento a
-								where 
-									a.AGEN_ID = af.AGEN_ID
-									and AGEN_Situacao = 'A'
-									and FUNC_ID = " . $funcionarioEsmalteria . "
-									and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
-									and '" . $horarioEsmalteria . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
-									and '" . $horarioFinalEsmalteria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
-								";
+						//Se mais de um funcionario foi selecionado, divide a duração entre eles
+						$laFuncionarioEsmalteria = explode("|", $funcionarioEsmalteria);
+						$laHorarioEsmalteria = explode("|", $horarioEsmalteria);
 						
-						if ($db->Query($sql_query)) {
-							if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+						if (count($laFuncionarioEsmalteria) > 1) {
+							$duracao = $duracao / count($laFuncionarioEsmalteria);							
+						}
+						
+						for ($i = 0; $i < count($laFuncionarioEsmalteria); $i++) {
+							
+							//$horarioFinalEsmalteria = $horarioEsmalteria + $duracao; Ex: 09:30 + 120 min
+							$horarioFinalEsmalteria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($laHorarioEsmalteria[$i])));  //11:30
+
+							//Valida se o horário final invade um horário futuro já reservado				
+							$sql_query = "
+									SELECT 
+										DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
+									FROM 
+										agendamento_funcionario af, agendamento a
+									where 
+										a.AGEN_ID = af.AGEN_ID
+										and AGEN_Situacao = 'A'
+										and FUNC_ID = " . $laFuncionarioEsmalteria[$i] . "
+										and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
+										and '" . $laHorarioEsmalteria[$i] . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
+										and '" . $horarioFinalEsmalteria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
+									";
+							
+							//echo '{ "resultado": "ERRO", "mensagem": "laFuncionarioEsmalteria: ' . $laHorarioEsmalteria[$i] . '" }';
+							//exit;						
+						
+							if ($db->Query($sql_query)) {
+								if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+									//deletarEventoGoogleCalendar($eventoCriado->id);
+									echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Manicure (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $laHorarioEsmalteria[$i] . ' a ' . $horarioFinalEsmalteria . ']"}';
+									exit;
+								}
+							} else {
 								//deletarEventoGoogleCalendar($eventoCriado->id);
-								echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $horarioEsmalteria . ' a ' . $horarioFinalEsmalteria . ']"}';
+								echo '{ "resultado": "ERRO", "mensagem": "Ops! Por um problema técnico não conseguimos agendar o seu momento [6]. Falsmos pelo Whatsapp 8879-1014, ok?" }';
 								exit;
 							}
-						} else {
-							//deletarEventoGoogleCalendar($eventoCriado->id);
-							echo '{ "resultado": "ERRO", "mensagem": "Ops! Por um problema técnico não conseguimos agendar o seu momento [6]. Falsmos pelo Whatsapp 8879-1014, ok?" }';
-							exit;
-						}
-						
-						$agendamento_funcionario_esmalteria["AGEN_ID"]  = MySQL::SQLValue($resultado_agendamento, MySQL::SQLVALUE_NUMBER);
-						$agendamento_funcionario_esmalteria["FUNC_ID"]  = MySQL::SQLValue($funcionarioEsmalteria, MySQL::SQLVALUE_NUMBER);
-						$agendamento_funcionario_esmalteria["AGFU_HoraInicio"]  = MySQL::SQLValue($data . " " . $horarioEsmalteria);
-						$agendamento_funcionario_esmalteria["AGFU_HoraFim"] = MySQL::SQLValue($data . " " . $horarioFinalEsmalteria);
-						
-						$resultado_agendamento_funcionario_esmalteria = $db->InsertRow("agendamento_funcionario", $agendamento_funcionario_esmalteria);
-						if (! $resultado_agendamento_funcionario_esmalteria) {
-							//deletarEventoGoogleCalendar($eventoCriado->id);
-							$db->TransactionRollback();
-							$db->Kill();
-							echo '{ "resultado": "ERRO", "mensagem": "Ops! Não consuiguimos processar seu pedido [4]. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
-							exit;
-						}
+							
+							$agendamento_funcionario_esmalteria["AGEN_ID"]  = MySQL::SQLValue($resultado_agendamento, MySQL::SQLVALUE_NUMBER);
+							$agendamento_funcionario_esmalteria["FUNC_ID"]  = MySQL::SQLValue($laFuncionarioEsmalteria[$i], MySQL::SQLVALUE_NUMBER);
+							$agendamento_funcionario_esmalteria["AGFU_HoraInicio"]  = MySQL::SQLValue($data . " " . $laHorarioEsmalteria[$i]);
+							$agendamento_funcionario_esmalteria["AGFU_HoraFim"] = MySQL::SQLValue($data . " " . $horarioFinalEsmalteria);
+							
+							$resultado_agendamento_funcionario_esmalteria = $db->InsertRow("agendamento_funcionario", $agendamento_funcionario_esmalteria);
+							if (! $resultado_agendamento_funcionario_esmalteria) {
+								//deletarEventoGoogleCalendar($eventoCriado->id);
+								$db->TransactionRollback();
+								$db->Kill();
+								echo '{ "resultado": "ERRO", "mensagem": "Ops! Não consuiguimos processar seu pedido [4]. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
+								exit;
+							}
+							
+						} //Fim LOOP funcionarios Esmalteria
 						
 					} else {
 						//deletarEventoGoogleCalendar($eventoCriado->id);
@@ -836,49 +848,61 @@ switch ($acao) {
 						$linha = $db->Row(0);
 						$duracao = $linha->duracao;
 						
-						//$horarioFinalEscovaria = $horarioEscovaria + $duracao; Ex: 09:30 + 120 min
-						$horarioFinalEscovaria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($horarioEscovaria)));
+						//Se mais de um funcionario foi selecionado, divide a duração entre eles
+						$laFuncionarioEscovaria = explode("|", $funcionarioEscovaria);
+						$laHorarioEscovaria = explode("|", $horarioEscovaria);
 						
-						//Valida se o horário final invade um horário futuro já reservado				
-						$sql_query = "
-								SELECT 
-									DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
-								FROM 
-									agendamento_funcionario af, agendamento a
-								where 
-									a.AGEN_ID = af.AGEN_ID
-									and AGEN_Situacao = 'A'
-									and FUNC_ID = " . $funcionarioEscovaria . "
-									and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
-									and '" . $horarioEscovaria . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
-									and '" . $horarioFinalEscovaria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
-								";
+						if (count($laFuncionarioEscovaria) > 1) {
+							$duracao = $duracao / count($laFuncionarioEscovaria);							
+						}
 						
-						if ($db->Query($sql_query)) {
-							if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+						for ($i = 0; $i < count($laFuncionarioEscovaria); $i++) {
+						
+							//$horarioFinalEscovaria = $horarioEscovaria + $duracao; Ex: 09:30 + 120 min
+							$horarioFinalEscovaria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($laHorarioEscovaria[$i])));
+							
+							//Valida se o horário final invade um horário futuro já reservado				
+							$sql_query = "
+									SELECT 
+										DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
+									FROM 
+										agendamento_funcionario af, agendamento a
+									where 
+										a.AGEN_ID = af.AGEN_ID
+										and AGEN_Situacao = 'A'
+										and FUNC_ID = " . $laFuncionarioEscovaria[$i] . "
+										and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
+										and '" . $laHorarioEscovaria[$i] . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
+										and '" . $horarioFinalEscovaria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
+									";
+							
+							if ($db->Query($sql_query)) {
+								if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+									//deletarEventoGoogleCalendar($eventoCriado->id);
+									echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $laHorarioEscovaria[$i] . ' a ' . $horarioFinalEscovaria . ']"}';
+									exit;
+								}
+							} else {
 								//deletarEventoGoogleCalendar($eventoCriado->id);
-								echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $horarioEscovaria . ' a ' . $horarioFinalEscovaria . ']"}';
+								echo '{ "resultado": "ERRO", "mensagem": "Ops! Por um problema técnico não conseguimos agendar o seu momento [7]. Falsmos pelo Whatsapp 8879-1014, ok?" }';
 								exit;
 							}
-						} else {
-							//deletarEventoGoogleCalendar($eventoCriado->id);
-							echo '{ "resultado": "ERRO", "mensagem": "Ops! Por um problema técnico não conseguimos agendar o seu momento [7]. Falsmos pelo Whatsapp 8879-1014, ok?" }';
-							exit;
-						}
-						
-						$agendamento_funcionario_escovaria["AGEN_ID"]  = MySQL::SQLValue($resultado_agendamento, MySQL::SQLVALUE_NUMBER);
-						$agendamento_funcionario_escovaria["FUNC_ID"]  = MySQL::SQLValue($funcionarioEscovaria, MySQL::SQLVALUE_NUMBER);
-						$agendamento_funcionario_escovaria["AGFU_HoraInicio"]  = MySQL::SQLValue($data . " " . $horarioEscovaria);
-						$agendamento_funcionario_escovaria["AGFU_HoraFim"] = MySQL::SQLValue($data . " " . $horarioFinalEscovaria);
-						
-						$resultado_agendamento_funcionario_escovaria = $db->InsertRow("agendamento_funcionario", $agendamento_funcionario_escovaria);
-						if (! $resultado_agendamento_funcionario_escovaria) {
-							//deletarEventoGoogleCalendar($eventoCriado->id);
-							$db->TransactionRollback();
-							$db->Kill();
-							echo '{ "resultado": "ERRO", "mensagem": "Ops! Não consuiguimos processar seu pedido [4]. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
-							exit;
-						}
+							
+							$agendamento_funcionario_escovaria["AGEN_ID"]  = MySQL::SQLValue($resultado_agendamento, MySQL::SQLVALUE_NUMBER);
+							$agendamento_funcionario_escovaria["FUNC_ID"]  = MySQL::SQLValue($laFuncionarioEscovaria[$i], MySQL::SQLVALUE_NUMBER);
+							$agendamento_funcionario_escovaria["AGFU_HoraInicio"]  = MySQL::SQLValue($data . " " . $laHorarioEscovaria[$i]);
+							$agendamento_funcionario_escovaria["AGFU_HoraFim"] = MySQL::SQLValue($data . " " . $horarioFinalEscovaria);
+							
+							$resultado_agendamento_funcionario_escovaria = $db->InsertRow("agendamento_funcionario", $agendamento_funcionario_escovaria);
+							if (! $resultado_agendamento_funcionario_escovaria) {
+								//deletarEventoGoogleCalendar($eventoCriado->id);
+								$db->TransactionRollback();
+								$db->Kill();
+								echo '{ "resultado": "ERRO", "mensagem": "Ops! Não consuiguimos processar seu pedido [4]. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
+								exit;
+							}
+							
+						} //Fim LOOP funcionarios Escovaria
 						
 					} else {
 						//deletarEventoGoogleCalendar($eventoCriado->id);
@@ -893,18 +917,13 @@ switch ($acao) {
 			}
 			
 			$db->TransactionEnd(); //Commit
-			//$diasSemana = array('Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado');
+			$diasSemana = array('Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado');
 			$dataExibicao = date("d/m/Y", strtotime($data)); //Ex: 03/06/2015
-			//$dataExibicao = $dataExibicao . " (" . $diasSemana[date("w", $data)] . ")"; // <- Não está calculado o dia da semana corretamente
+			$dataExibicao = $dataExibicao . " (" . $diasSemana[date("w", $data)] . ")"; // <- Não está calculado o dia da semana corretamente
 			echo '{ "resultado": "SUCESSO", "mensagem": "Agendamento confirmado! Nos vemos na Maria Gata em ' . $dataExibicao . '"}';
-			//$db->TransactionRollback();
-			//$db->Kill();
 			exit;
 			
 		}
-						
-		
-		//echo '{ "resultado": "NAOENCONTRADO", "mensagem": "' . $nome . ' - ' . $email . ' - ' . $data . ' - ' . $filial . ' - ' . $celular . ' - ' . $servicos . ' - ' . $funcionarioEsmalteria . ' - ' . $horarioEsmalteria . ' - ' . $funcionarioEscovaria . ' - ' . $horarioEscovaria . '"}';
 				
 		break;
 		
