@@ -85,7 +85,7 @@ switch ($acao) {
 		
 		$filial = $_POST["filial"];
 
-		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, 'S' as FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = '" . $filial . "' and FISE_DelecaoLogica = 'N' order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
+		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, FISE_Preco, FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = '" . $filial . "' and FISE_DelecaoLogica = 'N' order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
@@ -638,8 +638,7 @@ switch ($acao) {
 		}
 		
 		$filial = $_POST["filial"];
-		$data = $_POST["data"];
-		
+		$data = $_POST["data"];		
 		$servicos = $_POST["servicos"];
 		
 		if (isset($_POST["funcionarioEsmalteria"])) {
@@ -778,7 +777,14 @@ switch ($acao) {
 							
 							//$horarioFinalEsmalteria = $horarioEsmalteria + $duracao; Ex: 09:30 + 120 min
 							$horarioFinalEsmalteria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($laHorarioEsmalteria[$i])));  //11:30
-
+							
+							//Bloqueia angendamentos que terminarem após às 18:30h
+							if (date("H:i", strtotime($horarioFinalEsmalteria)) > date("H:i", strtotime("18:30"))) {
+								//deletarEventoGoogleCalendar($eventoCriado->id);
+								echo '{ "resultado": "ERRO", "mensagem": "O horário de término do serviço da Esmalteria não pode passar às 18:30h!" }';
+								exit;
+							}
+							
 							//Valida se o horário final invade um horário futuro já reservado				
 							$sql_query = "
 									SELECT 
@@ -794,9 +800,6 @@ switch ($acao) {
 										and '" . $horarioFinalEsmalteria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
 									";
 							
-							//echo '{ "resultado": "ERRO", "mensagem": "laFuncionarioEsmalteria: ' . $laHorarioEsmalteria[$i] . '" }';
-							//exit;						
-						
 							if ($db->Query($sql_query)) {
 								if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 									//deletarEventoGoogleCalendar($eventoCriado->id);
@@ -860,6 +863,13 @@ switch ($acao) {
 						
 							//$horarioFinalEscovaria = $horarioEscovaria + $duracao; Ex: 09:30 + 120 min
 							$horarioFinalEscovaria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($laHorarioEscovaria[$i])));
+							
+							//Bloqueia angendamentos que terminarem após às 18:30h
+							if (date("H:i", strtotime($horarioFinalEscovaria)) > date("H:i", strtotime("18:30"))) {
+								//deletarEventoGoogleCalendar($eventoCriado->id);
+								echo '{ "resultado": "ERRO", "mensagem": "O horário de término do serviço de Cabelo e Estética não pode passar às 18:30h!" }';
+								exit;
+							}
 							
 							//Valida se o horário final invade um horário futuro já reservado				
 							$sql_query = "

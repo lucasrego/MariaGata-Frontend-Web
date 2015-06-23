@@ -1,18 +1,4 @@
 $(function() {
-	//------------------------ Date Picker ------------------------//
-	/*
-	$( "#dataAgendamento" ).datepicker({
-		minDate: 0,
-		dateFormat: "DD, d MM, yy"
-	});
-	$( "#dataAgendamento" ).datepicker( $.datepicker.regional[ "pt-BR" ] );
-	
-	
-	$( ".datepicker" ).datepicker({
-		inline: true,
-		showOtherMonths: true
-	});
-	*/
 	
 	//Preencher datas disponíveis
 	function carregarDatas(qtdDiasCarregar) {
@@ -110,16 +96,16 @@ $(function() {
 			$.each(jsonRetorno, function( index, value ) {				
 				
 				if (value.SERV_Tipo == "PA") {
-					$("#pacotesAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+					$("#pacotesAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");
 				}
 				if (value.SERV_Tipo == "EC") {
-					$("#escovariaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+					$("#escovariaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");
 				}
 				if (value.SERV_Tipo == "EM") {
-					$("#esmalteriaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+					$("#esmalteriaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");
 				}
 				if (value.SERV_Tipo == "MA") {
-					$("#maquiagemAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
+					$("#maquiagemAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");					
 				}
 				if (value.SERV_Tipo == "DE") {
 					$("#depilacaoAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
