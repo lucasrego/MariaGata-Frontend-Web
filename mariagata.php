@@ -788,7 +788,7 @@ switch ($acao) {
 							//Valida se o horário final invade um horário futuro já reservado				
 							$sql_query = "
 									SELECT 
-										DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
+										DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
 									FROM 
 										agendamento_funcionario af, agendamento a
 									where 
@@ -798,12 +798,22 @@ switch ($acao) {
 										and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
 										and '" . $laHorarioEsmalteria[$i] . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
 										and '" . $horarioFinalEsmalteria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
+									UNION
+									SELECT 
+										FUHB_Horario as hora 
+									FROM 
+										funcionario_horarios_base
+									where 
+										FUNC_ID = " . $laFuncionarioEsmalteria[$i] . "
+										and FUHB_HorarioBloqueado = 'S'
+										and '" . $laHorarioEsmalteria[$i] . "' < DATE_FORMAT(FUHB_Horario,'%H:%i')
+										and '" . $horarioFinalEsmalteria . "' > DATE_FORMAT(FUHB_Horario,'%H:%i')
 									";
 							
 							if ($db->Query($sql_query)) {
 								if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 									//deletarEventoGoogleCalendar($eventoCriado->id);
-									echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Manicure (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $laHorarioEsmalteria[$i] . ' a ' . $horarioFinalEsmalteria . ']"}';
+									echo '{ "resultado": "ERRO", "mensagem": "Horário indisponível ou a duração do(s) serviço(s) de Manicure (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $laHorarioEsmalteria[$i] . ' a ' . $horarioFinalEsmalteria . ']"}';
 									exit;
 								}
 							} else {
@@ -874,7 +884,7 @@ switch ($acao) {
 							//Valida se o horário final invade um horário futuro já reservado				
 							$sql_query = "
 									SELECT 
-										DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d') as data, DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
+										DATE_FORMAT(AGFU_HoraInicio,'%H:%i') as hora 
 									FROM 
 										agendamento_funcionario af, agendamento a
 									where 
@@ -884,12 +894,22 @@ switch ($acao) {
 										and DATE_FORMAT('" . $data . "','%Y-%m-%d') = DATE_FORMAT(AGFU_HoraInicio,'%Y-%m-%d')
 										and '" . $laHorarioEscovaria[$i] . "' < DATE_FORMAT(AGFU_HoraFim,'%H:%i')
 										and '" . $horarioFinalEscovaria . "' > DATE_FORMAT(AGFU_HoraInicio,'%H:%i')
+									UNION
+									SELECT 
+										FUHB_Horario as hora 
+									FROM 
+										funcionario_horarios_base
+									where 
+										FUNC_ID = " . $laFuncionarioEscovaria[$i] . "
+										and FUHB_HorarioBloqueado = 'S'
+										and '" . $laHorarioEscovaria[$i] . "' < DATE_FORMAT(FUHB_Horario,'%H:%i')
+										and '" . $horarioFinalEscovaria . "' > DATE_FORMAT(FUHB_Horario,'%H:%i')
 									";
 							
 							if ($db->Query($sql_query)) {
 								if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 									//deletarEventoGoogleCalendar($eventoCriado->id);
-									echo '{ "resultado": "ERRO", "mensagem": "Horário já reservado ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $laHorarioEscovaria[$i] . ' a ' . $horarioFinalEscovaria . ']"}';
+									echo '{ "resultado": "ERRO", "mensagem": "Horário indisponível ou a duração do(s) serviço(s) de Cabelo ou Estética (' . $duracao . ' min) invade o horário do próximo cliente. Escolha outro horário, ok? [' . $data . ' ' . $laHorarioEscovaria[$i] . ' a ' . $horarioFinalEscovaria . ']"}';
 									exit;
 								}
 							} else {

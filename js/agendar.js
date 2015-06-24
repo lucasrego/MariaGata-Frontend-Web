@@ -427,7 +427,8 @@ $(function() {
 		if ($(e.target).hasClass("btn-lime")) {
 			$(e.target).removeClass("btn-lime").addClass("btn-pink");
 		} else {
-			if ($("#btnAtendimentoParaleloEsmalteria").hasClass("btn-gray")) { //Atendimento paralelo desabilitado
+			//Se botão existe e atendimento paralelo desabilitado: hasClass("btn-gray")
+			if (($("#btnAtendimentoParaleloEsmalteria").hasClass("btn-gray"))||($("#btnAtendimentoParaleloEsmalteria").length == 0)) {
 				//Limpa a classe dos botões btnEsmalteriaDisponivel. Se não estiver disabled, aplica css do botão selecionado
 				$('.btnEsmalteriaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
 				$(e.target).removeClass("btn-pink").addClass("btn-lime");
@@ -447,7 +448,8 @@ $(function() {
 		if ($(e.target).hasClass("btn-lime")) {
 			$(e.target).removeClass("btn-lime").addClass("btn-pink");
 		} else {
-			if ($("#btnAtendimentoParaleloEscovaria").hasClass("btn-gray")) { //Atendimento paralelo desabilitado
+			//Se botão existe e atendimento paralelo desabilitado: hasClass("btn-gray")
+			if (($("#btnAtendimentoParaleloEscovaria").hasClass("btn-gray"))||($("#btnAtendimentoParaleloEscovaria").length == 0)) {
 				//Limpa a classe dos botões btnEscovaria. Se não estiver disabled, aplica css do botão selecionado
 				$('.btnEscovariaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
 				$(e.target).removeClass("btn-pink").addClass("btn-lime");

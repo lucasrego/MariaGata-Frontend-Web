@@ -133,11 +133,6 @@ include 'includes/navegacao/navbar.php';
 				</div>
 				<!-- END Content -->
                 
-				<footer>
-                    <p>2015 © Maria Gata</p>
-                </footer>
-				
-                <a id="btn-scrollup" class="btn btn-circle btn-lg" href="#"><i class="fa fa-chevron-up"></i></a>
             </div>
             <!-- END Content -->
         </div>
