@@ -84,8 +84,20 @@ switch ($acao) {
 		//http://mariagata.com.br/sistema/mariagata.php?filial=1&a=obterservicosfilial
 		
 		$filial = $_POST["filial"];
-
-		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, FISE_Preco, FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = '" . $filial . "' and FISE_DelecaoLogica = 'N' order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
+		
+		$sqlFiltrarPermiteAgendamentos = " and FISE_PermiteAgendamento = 'S' ";
+		
+		if (isset($_POST["exibirTodos"])) {
+			if ($_POST["exibirTodos"] == "S") {
+				$sqlFiltrarPermiteAgendamentos = " ";				
+			} else {
+				$sqlFiltrarPermiteAgendamentos = " and FISE_PermiteAgendamento = 'S' ";
+			}			
+		} else {
+			$sqlFiltrarPermiteAgendamentos = " and FISE_PermiteAgendamento = 'S' ";
+		}
+		
+		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, FISE_Preco, FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = " . $filial . " and FISE_DelecaoLogica = 'N' " . $sqlFiltrarPermiteAgendamentos . " order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
