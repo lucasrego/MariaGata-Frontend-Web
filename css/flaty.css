@@ -11,6 +11,24 @@
 /* Import Font */
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700);
 
+.comandaAberta{ 
+	background-color:rgb(242, 116, 198); 
+	color: white;
+	font-size: 18px;
+}
+
+.comandaPaga{ 
+	background-color:rgb(66, 221, 62); 
+	color: white;
+	font-size: 18px;
+}
+
+.comandaCancelada{ 
+	background-color:rgb(155, 155, 155); 
+	color: white;
+	font-size: 18px;
+}
+
 html {
     min-height: 100%;
     position: relative;

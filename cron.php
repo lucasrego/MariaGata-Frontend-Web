@@ -105,9 +105,9 @@ if ($db->Query($lsSQL)) {
 						if ($debugEnvioSMS) echo "<br />SMS enviado com sucesso...";
 						
 						//Atualiza agendamento como enviado
-						$update_agendamento["AGEN_DataAvisoCliente"]  = MySQL::SQLValue($lsDataHoraAtual);
-						if (! $db1->UpdateRows("agendamento", $update_agendamento, array("AGEN_ID" => $idAgendamento))) {
-							if ($debugEnvioSMS) echo "<br />FALHA ao setar agendamento como enviado...";
+						$update_agendamento["AGEN_DataAvisoCliente"]  = MySQL::SQLValue($lsDataHoraAtual);			
+						if (! $db1->UpdateRows("agendamento", $update_agendamento, array("AGEN_ID" => $idAgendamento))) {						
+							if ($debugEnvioSMS) echo "<br />FALHA ao setar agendamento como enviado...";									
 						} else {
 							if ($debugEnvioSMS) echo "<br />Setou agendamento como enviado...";
 						}
@@ -117,7 +117,7 @@ if ($db->Query($lsSQL)) {
 					}
 				} else {
 					if ($debugEnvioSMS) echo "<br />Não enviou SMS devido ao horário...";
-				}
+				}				
 				
 			} //Fim validação celular
 			

@@ -14,19 +14,31 @@
 				<span>Painel</span>
 			</a>
 		</li>
-		
+
 		<li>
-			<a href="index.php">
-				<i class="fa fa-clock-o"></i>
-				<span>Novo Agendamento</span>
+			<a href="#" class="dropdown-toggle">
+				<i class="fa fa-users"></i>
+				<span>Atendimento</span>
+				<b class="arrow fa fa-angle-right"></b>
 			</a>
+
+			<ul class="submenu">
+				<li><a href="tAtendimento.php">Atender</a></li>
+			</ul>
 		</li>
 		
+		
 		<li>
-			<a href="tCalendario.php">
-				<i class="fa fa-book"></i>
-				<span>Consultar Agenda</span>
+			<a href="#" class="dropdown-toggle">
+				<i class="fa fa-users"></i>
+				<span>Agendamentos</span>
+				<b class="arrow fa fa-angle-right"></b>
 			</a>
+
+			<ul class="submenu">
+				<li><a href="index.php">Novo</a></li>
+				<li><a href="tCalendario.php">Consultar Agenda</a></li>
+			</ul>
 		</li>
 		
 		<!--
