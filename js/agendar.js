@@ -25,7 +25,7 @@ $(function() {
 	function carregarClientes(clienteParaSelecionar) {
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'obterclientes'
@@ -74,7 +74,7 @@ $(function() {
 	function carregarServicosFilial() {
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'obterservicosfilial',
@@ -261,7 +261,7 @@ $(function() {
 		
 		//Consultar disponibilidade de profissionais e os horário livres
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'obterprofissionaishorarios',
@@ -661,7 +661,7 @@ $(function() {
 		}
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'salvardadosusuario',
@@ -705,7 +705,7 @@ $(function() {
 		//return false;
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'confirmaragendamento',

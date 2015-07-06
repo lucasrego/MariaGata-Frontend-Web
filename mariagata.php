@@ -645,7 +645,11 @@ switch ($acao) {
 						$linha = $db->Row(0);
 						$valeAtual = $linha->CLIE_ValeAcumulado;
 						
-						$novoVale = (float)$valeAtual + (float)$valeFuturo;
+						if ((float)$valeFuturo <= (float)$valeAtual) {
+							$novoVale = (float)$valeFuturo - (float)$valeAtual;
+						} else {
+							$novoVale = (float)$valeAtual - (float)$valeFuturo;
+						}
 						
 						$update_cliente["CLIE_ValeAcumulado"]  = MySQL::SQLValue($novoVale);
 						if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {

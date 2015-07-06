@@ -5,7 +5,7 @@ $(function() {
 		var filial = $('#cmbFilial').val();
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'obterfuncionarios',
@@ -88,7 +88,7 @@ $(function() {
 			},
 			events: function(start, end, timezone, callback) {
 				$.ajax({
-					url: 'http://mariagata.com.br/sistema/mariagata.php?a=obteragendamentos&filial=1',
+					url: 'obterURLBackend()?a=obteragendamentos&filial=1',
 					dataType: 'json',
 					method: 'POST',
 					data: {
@@ -124,7 +124,7 @@ $(function() {
 			eventClick: function(calEvent, jsEvent, view) {
 				
 				$.ajax({
-					url: "http://mariagata.com.br/sistema/mariagata.php",
+					url: urlBackend,
 					type: 'POST',
 					data: {
 						a: 'obterdetalhesagendamento',
@@ -188,7 +188,7 @@ $(function() {
 	$('#modalConsultarAgendamentoCancelar').click(function () {
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'cancelaragendamento',

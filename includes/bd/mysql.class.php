@@ -20,9 +20,9 @@ class MySQL
 {
 	// SET THESE VALUES TO MATCH YOUR DATA CONNECTION
 	private $db_host    = "mariagata.com.br"; // server name
-	private $db_user    = "mariagat_sisprod";          // user name
-	private $db_pass    = "escovariamg7";          // password
-	private $db_dbname  = "mariagat_agendamentopro";          // database name
+	private $db_user    = "mariagat_mariaga";          // user name
+	private $db_pass    = "mariagata";          // password
+	private $db_dbname  = "mariagat_agendamentohom";          // database name
 	private $db_charset = "utf8";          // optional character set (i.e. utf8)
 	private $db_pcon    = false;      // use persistent connection?
 

@@ -1,3 +1,7 @@
+
+urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
+//urlBackend = "http://mariagata.com.br/sistema/mariagata.php"; //Produção
+
 function exibirMensagem(titulo, msg) {
 	$.gritter.add({
 		title: titulo,

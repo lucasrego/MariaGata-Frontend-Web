@@ -167,7 +167,7 @@ $(function() {
 		if (jsonFuncionarios == "") {
 		
 			$.ajax({
-				url: "http://mariagata.com.br/sistema/mariagata.php",
+				url: urlBackend,
 				type: 'POST',
 				data: {
 					a: 'obterfuncionarios',
@@ -298,7 +298,7 @@ $(function() {
 		}
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'salvaratendimento',
@@ -374,7 +374,7 @@ $(function() {
 		} else {
 			//Obtem dados do cliente e verifica se possui vale
 			$.ajax({
-				url: "http://mariagata.com.br/sistema/mariagata.php",
+				url: urlBackend,
 				type: 'POST',
 				data: {
 					a: 'obterdadoscliente',
@@ -429,7 +429,7 @@ $(function() {
 	function carregarClientes(clienteParaSelecionar) {
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'obterclientes'
@@ -489,7 +489,7 @@ $(function() {
 		if (jsonServicos == "") {
 		
 			$.ajax({
-				url: "http://mariagata.com.br/sistema/mariagata.php",
+				url: urlBackend,
 				type: 'POST',
 				data: {
 					a: 'obterservicosfilial',
@@ -582,7 +582,7 @@ $(function() {
 		}
 		
 		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
+			url: urlBackend,
 			type: 'POST',
 			data: {
 				a: 'salvardadosusuario',
@@ -635,7 +635,7 @@ $(function() {
 			dataAtendimento = dataAtendimento.split("/")[2] + "-" + dataAtendimento.split("/")[1] + "-" + dataAtendimento.split("/")[0];
 			
 			$.ajax({
-				url: "http://mariagata.com.br/sistema/mariagata.php",
+				url: urlBackend,
 				type: 'POST',
 				data: {
 					a: 'obteratendimentos',
