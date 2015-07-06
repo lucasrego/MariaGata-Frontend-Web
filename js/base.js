@@ -1,6 +1,18 @@
 
-urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
-//urlBackend = "http://mariagata.com.br/sistema/mariagata.php"; //Produção
+//urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
+
+var ambiente = "TES"; //TES ou PRO
+
+if (ambiente == "TES") {
+	urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
+	$('body').removeClass("skin-pink").addClass("skin-black");
+} else {
+	urlBackend = "http://mariagata.com.br/sistema/mariagata.php"; //Produção
+	$('body').removeClass("skin-black").addClass("skin-pink");
+}
+
+
+
 
 function exibirMensagem(titulo, msg) {
 	$.gritter.add({
