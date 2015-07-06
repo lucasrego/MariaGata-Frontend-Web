@@ -19,6 +19,12 @@ $private_key = file_get_contents('Google/Maria Gata Calendar-50ee75bea200.p12');
 $scopes = array('https://www.googleapis.com/auth/calendar');
 */
 
+function validarData($data)
+{
+    $d = DateTime::createFromFormat('Y-m-d', $data);
+    return $d && $d->format('Y-m-d') == $data;
+}
+
 function deletarEventoGoogleCalendar($idEvento) {
 	
 	$credentials = new Google_Auth_AssertionCredentials(
@@ -85,19 +91,40 @@ switch ($acao) {
 		
 		$filial = $_POST["filial"];
 		
-		$sqlFiltrarPermiteAgendamentos = " and FISE_PermiteAgendamento = 'S' ";
-		
-		if (isset($_POST["exibirTodos"])) {
-			if ($_POST["exibirTodos"] == "S") {
-				$sqlFiltrarPermiteAgendamentos = " ";				
+		if (isset($_POST["agendamento"])) {
+			$agendamento = $_POST["agendamento"];
+			if ($agendamento == "S") {
+				$sqlFiltrarAgendamentos = " and FISE_VisivelAgendamento = 'S' ";
 			} else {
-				$sqlFiltrarPermiteAgendamentos = " and FISE_PermiteAgendamento = 'S' ";
-			}			
+				if ($agendamento == "N") {
+					$sqlFiltrarAgendamentos = " and FISE_VisivelAgendamento = 'N' ";
+				} else {
+					echo '{ "resultado": "ERRO", "mensagem": "Parametro de agendamento inválido." }';
+					exit;
+				}
+			}		
 		} else {
-			$sqlFiltrarPermiteAgendamentos = " and FISE_PermiteAgendamento = 'S' ";
+			$sqlFiltrarAgendamentos = "";
 		}
 		
-		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, FISE_Preco, FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = " . $filial . " and FISE_DelecaoLogica = 'N' " . $sqlFiltrarPermiteAgendamentos . " order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
+		if (isset($_POST["atendimento"])) {
+			$atendimento = $_POST["atendimento"];
+			if ($atendimento == "S") {
+				$sqlFiltrarAtendimentos = " and FISE_VisivelAtendimento = 'S' ";
+			} else {
+				if ($atendimento == "N") {
+					$sqlFiltrarAtendimentos = " and FISE_VisivelAtendimento = 'N' ";
+				} else {
+					echo '{ "resultado": "ERRO", "mensagem": "Parametro de atendimento inválido." }';
+					exit;
+				}
+			}
+		} else {
+			$sqlFiltrarAtendimentos = "";
+		}
+
+			
+		if ($db->Query("select s.SERV_ID, SERV_Nome, SERV_Tipo, FISE_Preco, FISE_AtendimentoParalelo from servico s, filial_servico fs where s.SERV_ID = fs.SERV_ID and FILI_ID = " . $filial . " and FISE_DelecaoLogica = 'N' " . $sqlFiltrarAgendamentos . " " . $sqlFiltrarAtendimentos . " order by SERV_Tipo desc, SERV_Ordem, SERV_Nome")) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
@@ -116,7 +143,7 @@ switch ($acao) {
 		
 		//http://mariagata.com.br/sistema/mariagata.php?a=obterclientes
 		
-		if ($db->Query("select CLIE_ID, CLIE_Nome, IFNULL(CLIE_CPF, ' ') as CLIE_CPF, CLIE_Email, CLIE_Celular from cliente order by CLIE_Nome")) {
+		if ($db->Query("select CLIE_ID, CLIE_Nome, IFNULL(CLIE_CPF, ' ') as CLIE_CPF, CLIE_Sobrenome, CLIE_Aniversario, CLIE_Observacao, CLIE_Email, IFNULL(CLIE_Celular, ' ') as CLIE_Celular from cliente order by CLIE_Nome")) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
@@ -129,8 +156,67 @@ switch ($acao) {
 		}
 		
 		break;
+	
+	case "obterdadoscliente":	
+		
+		//http://mariagata.com.br/sistema/mariagata.php?a=obterdadoscliente&cliente=1
+		
+		$cliente = $_POST["cliente"];
+		
+		if ($db->Query("select CLIE_CPF, CLIE_Nome, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario, CLIE_Email, CLIE_Celular, CLIE_DataCadastro, CLIE_DataUltimaAtualizacaoDados, CLIE_ValeAcumulado from cliente where CLIE_ID = " . $cliente)) {
+			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+				echo $db->GetJSON();
+			} else {
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Código de cliente não encontrado." }';
+				exit;
+			}
+		} else {
+			echo '{ "resultado": "ERRO", "mensagem": "Não foi possível obter os dados do cliente." }';
+			exit;			
+		}
+		
+		break;
 
-
+	
+	case "obteratendimentos":
+		
+		//http://mariagata.com.br/sistema/mariagata.php?a=obteratendimentos&dataatendimento=2015-07-05&filial=1
+		
+		$dataatendimento = $_POST["dataatendimento"];
+		$filial = $_POST["filial"];
+		
+		$sql_query = "SELECT 
+							a.ATEN_ID, ATEN_Status, a.CLIE_ID, c.CLIE_Nome, c.CLIE_Sobrenome, a.USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
+						FROM 
+							atendimento a,
+							usuario u,
+							cliente c,
+							atendimento_servicos ats
+						where
+							ATEN_DataAtendimento = '" . $dataatendimento . "'
+							and a.FILI_ID = " . $filial . "
+							and a.USUA_ID = u.USUA_ID
+							and a.CLIE_ID = c.CLIE_ID
+							and a.ATEN_ID = ats.ATEN_ID							
+						group by a.ATEN_ID
+						order by a.ATEN_ID
+						";
+		
+		if ($db->Query($sql_query)) {
+			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+				echo $db->GetJSON();
+			} else {
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Nenhum atendimento encontrado para a data solicitada." }';
+				exit;
+			}
+		} else {
+			echo '{ "resultado": "ERRO", "mensagem": "Não foi possível obter os atendimentos." }';
+			exit;			
+		}
+		
+		break;
+		
+		
 	case "obterfuncionarios":	
 		
 		//http://mariagata.com.br/sistema/mariagata.php?a=obterfuncionarios&filial=1
@@ -427,15 +513,185 @@ switch ($acao) {
 		break;
 	
 	
+	case "salvaratendimento":
+		
+		//http://mariagata.com.br/sistema/mariagata.php?a=salvaratendimento&dataAtendimento=2015-07-05&filial=1&cliente=1&usuario=1&dadosServicosProdutos=1|1|39,90&totalServicos=54,90&valeFuturo=&dinheiro=39,90&debito=10,00&credito=&valeExistente=5,00
+		
+		$dataAtendimento = trim($_POST["dataAtendimento"]);
+		$filial = trim($_POST["filial"]);
+		$cliente = trim($_POST["cliente"]);
+		$usuario = trim($_POST["usuario"]);
+		$dadosServicosProdutos = trim($_POST["dadosServicosProdutos"]);
+		$totalServicos = str_replace(",", ".", str_replace(".", "", trim($_POST["totalServicos"])));
+		$valeExistente = str_replace(",", ".", str_replace(".", "", trim($_POST["valeExistente"])));
+		$valeFuturo = str_replace(",", ".", str_replace(".", "", trim($_POST["valeFuturo"])));
+		$dinheiro = str_replace(",", ".", str_replace(".", "", trim($_POST["dinheiro"])));
+		$debito = str_replace(",", ".", str_replace(".", "", trim($_POST["debito"])));
+		$credito = str_replace(",", ".", str_replace(".", "", trim($_POST["credito"])));
+		
+		if (validarData($dataAtendimento) == false) {
+			echo '{ "resultado": "ERRO", "mensagem": "Data de atendimento inválida." }';
+			exit;
+		}
+		
+		$somaPagamentos = (float)$dinheiro + (float)$debito + (float)$credito + (float)$valeExistente;
+		$totalPrevisto = (float)$somaPagamentos + (float)$valeFuturo;
+		
+		//echo '{ "resultado": "ERRO", "mensagem": "totalPrevisto: ' . (float)$totalPrevisto . '"}';
+		//exit;
+		
+		/*
+		if ((float)$totalServicos != (float)$totalPrevisto) {
+			echo '{ "resultado": "ERRO", "mensagem": "Os valores não estão batendo. Valor total (' . $totalServicos . ') está diferente da soma dos pagamentos (' . $somaPagamentos . ') + Vale Futuro (' . $valeFuturo . ')"}';
+			exit;
+		}
+		*/
+		
+		$db->TransactionBegin();
+		
+		//INSERE ATENDIMENTO
+		$atendimento["FILI_ID"]  = MySQL::SQLValue($filial, MySQL::SQLVALUE_NUMBER);
+		$atendimento["CLIE_ID"]  = MySQL::SQLValue($cliente, MySQL::SQLVALUE_NUMBER);
+		$atendimento["USUA_ID"]  = MySQL::SQLValue($usuario, MySQL::SQLVALUE_NUMBER);
+		$atendimento["ATEN_DataRegistro"]  = MySQL::SQLValue($lsDataHoraAtual);
+		$atendimento["ATEN_DataAtendimento"] = MySQL::SQLValue($dataAtendimento);
+		$atendimento["ATEN_Status"]  = MySQL::SQLValue("P");
+					
+		$resultado_atendimento = $db->InsertRow("atendimento", $atendimento);
+		if (! $resultado_atendimento) {
+			echo '{ "resultado": "ERRO", "mensagem": "Não conseguimos salvar o atendimento." }';
+			exit;
+		} else {
+			
+			$laDadosServicosProdutos = explode("$", $dadosServicosProdutos);
+
+			for ($i = 0; $i < count($laDadosServicosProdutos); $i++) {
+				
+				$valoresItem = explode("|", $laDadosServicosProdutos[$i]);
+				$idServico = $valoresItem[0];
+				$idFuncionario = $valoresItem[1];
+				$valorCobrado = $valoresItem[2];
+				$valorCobrado = str_replace(",", ".", str_replace(".", "", $valorCobrado));
+		
+				//INSERE atendimento_servicos
+				$atendimento_servicos["ATEN_ID"]  = MySQL::SQLValue($resultado_atendimento, MySQL::SQLVALUE_NUMBER);
+				$atendimento_servicos["SERV_ID"]  = MySQL::SQLValue($idServico, MySQL::SQLVALUE_NUMBER);
+				$atendimento_servicos["FILI_ID"]  = MySQL::SQLValue($filial, MySQL::SQLVALUE_NUMBER);
+				$atendimento_servicos["FUNC_ID"]  = MySQL::SQLValue($idFuncionario, MySQL::SQLVALUE_NUMBER);
+				$atendimento_servicos["ASER_ValorCobrado"]  = MySQL::SQLValue($valorCobrado);
+				$atendimento_servicos["ASER_ValorOriginal"]  = MySQL::SQLValue($valorCobrado);
+				
+				$resultado_atendimento_servicos = $db->InsertRow("atendimento_servicos", $atendimento_servicos);
+				if (! $resultado_atendimento_servicos) {
+					echo '{ "resultado": "ERRO", "mensagem": "Não conseguimos salvar os dados dos serviços e produtos." }';
+					exit;
+				}
+
+			}
+			
+			if (($dinheiro != "")and((float)$dinheiro != "0")) {
+				$atendimento_pagamento_dinheiro["ATEN_ID"]  = MySQL::SQLValue($resultado_atendimento, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_dinheiro["FPAG_ID"]  = MySQL::SQLValue(1, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_dinheiro["APAG_ValorPago"]  = MySQL::SQLValue($dinheiro);
+				
+				$resultado_atendimento_pagamento_dinheiro = $db->InsertRow("atendimento_pagamento", $atendimento_pagamento_dinheiro);
+				if (! $resultado_atendimento_pagamento_dinheiro) {
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados do pagamento (dinheiro)." }';
+					exit;
+				}
+			}
+			
+			if (($debito != "")and((float)$debito != "0")) {
+				$atendimento_pagamento_debito["ATEN_ID"]  = MySQL::SQLValue($resultado_atendimento, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_debito["FPAG_ID"]  = MySQL::SQLValue(2, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_debito["APAG_ValorPago"]  = MySQL::SQLValue($debito);
+				
+				$resultado_atendimento_pagamento_debito = $db->InsertRow("atendimento_pagamento", $atendimento_pagamento_debito);
+				if (! $resultado_atendimento_pagamento_debito) {
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados do pagamento (debito)." }';
+					exit;
+				}
+			}
+			
+			if (($credito != "")and((float)$credito != "0")) {
+				$atendimento_pagamento_credito["ATEN_ID"]  = MySQL::SQLValue($resultado_atendimento, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_credito["FPAG_ID"]  = MySQL::SQLValue(3, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_credito["APAG_ValorPago"]  = MySQL::SQLValue($credito);
+				
+				$resultado_atendimento_pagamento_credito = $db->InsertRow("atendimento_pagamento", $atendimento_pagamento_credito);
+				if (! $resultado_atendimento_pagamento_credito) {
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados do pagamento (credito)." }';
+					exit;
+				}
+			}
+			
+			if (($valeExistente != "")and((float)$valeExistente != "0")) {
+				$atendimento_pagamento_valeExistente["ATEN_ID"]  = MySQL::SQLValue($resultado_atendimento, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_valeExistente["FPAG_ID"]  = MySQL::SQLValue(4, MySQL::SQLVALUE_NUMBER);
+				$atendimento_pagamento_valeExistente["APAG_ValorPago"]  = MySQL::SQLValue($valeExistente);
+				
+				$resultado_atendimento_pagamento_valeExistente = $db->InsertRow("atendimento_pagamento", $atendimento_pagamento_valeExistente);
+				if (! $resultado_atendimento_pagamento_valeExistente) {
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados do pagamento (valeExistente)." }';
+					exit;
+				}
+			}
+			
+			//Se houve vale futuro, obtem o vale atual do cliente para soma o novo vale
+			if (($valeFuturo != "")and((float)$valeFuturo != "0")) {
+				if ($db->Query("SELECT CLIE_ValeAcumulado FROM cliente where CLIE_ID = '" . $cliente . "'")) {
+					if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+						
+						$linha = $db->Row(0);
+						$valeAtual = $linha->CLIE_ValeAcumulado;
+						
+						$novoVale = (float)$valeAtual + (float)$valeFuturo;
+						
+						$update_cliente["CLIE_ValeAcumulado"]  = MySQL::SQLValue($novoVale);
+						if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
+							echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos altualizar o vale do cliente." }';
+							exit;
+						}
+					} else {
+						echo '{ "resultado": "ERRO", "mensagem": "Cliente [' . $cliente . '[ não encontrado."}';
+						exit;
+					}
+				} else {
+					echo '{ "resultado": "ERRO", "mensagem": "Falha ao obter Vale atual do cliente." }';
+					exit;
+				}
+			} else {
+				//Atualiza vale para 0,00, pois foi utilizado ou não existia
+				$update_cliente["CLIE_ValeAcumulado"]  = MySQL::SQLValue("0");
+				if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos altualizar o vale do cliente [0]." }';
+					exit;
+				}
+				
+			}
+			
+			$db->TransactionEnd(); //Commit
+			echo '{ "resultado": "SUCESSO", "mensagem": "' . $resultado_atendimento . '"}';
+			exit;
+			
+		}
+	
+		break;
+		
+	
 	case "salvardadosusuario":
 		
-		//http://mariagata.com.br/sistema/mariagata.php?a=salvardadosusuario&nome=Lucas&cpf=80941818500&email=lucasrego@gmail.com&celular=7188145976
+		//http://mariagata.com.br/sistema/mariagata.php?a=salvardadosusuario&nome=Lucas&cpf=80941818500&email=lucasrego@gmail.com&celular=7188145976&sobrenome=Rego&observacao=testeobs&aniversario=0607
 		
-		$cpf = trim($_POST["cpf"]);
 		$nome = trim($_POST["nome"]);
+		$sobrenome = trim($_POST["sobrenome"]);
+		$observacao = trim($_POST["observacao"]);
+		$aniversario = trim($_POST["aniversario"]);
+		$cpf = trim($_POST["cpf"]);
 		$email = trim($_POST["email"]);
 		$celular = trim($_POST["celular"]);
-		
+	
+				
 		if ($cpf != "") {
 			// Verifica se o CPF ou CNPJ é válido
 			$cpf_cnpj = new ValidaCPFCNPJ($cpf);
@@ -457,9 +713,11 @@ switch ($acao) {
 			exit;
 		}
 		
-		if ((strlen($celular) != 10)&&(strlen($celular) != 11)) {
-			echo '{ "resultado": "ERRO", "mensagem": "Ops! Revise o celular informado. Altere seu cadastro e tente novamente. Se ainda tiver problemas, nos falamos pelo Whatsapp (71) 8879-1014, ok? ;)" }';
-			exit;
+		if ($celular != "") {
+			if ((strlen($celular) != 10)&&(strlen($celular) != 11)) {
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Revise o celular informado. Altere seu cadastro e tente novamente. Se ainda tiver problemas, nos falamos pelo Whatsapp (71) 8879-1014, ok? ;)" }';
+				exit;
+			}
 		}
 		
 		$db->TransactionBegin();
@@ -473,13 +731,14 @@ switch ($acao) {
 					$cliente = $linha->CLIE_ID;
 					
 					//UPDATE NOS DADOS DO CLIENTE
-					$update_cliente["CLIE_Nome"]  = MySQL::SQLValue($nome); //Atualiza para perfil morador, pois se trata de um novo convite.
-					$update_cliente["CLIE_Email"]  = MySQL::SQLValue($email);
+					$update_cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
+					$update_cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
+					$update_cliente["CLIE_Observacao"]  = MySQL::SQLValue($observacao);
+					$update_cliente["CLIE_Aniversario"]  = MySQL::SQLValue($aniversario);
 					$update_cliente["CLIE_Celular"]  = MySQL::SQLValue($celular);
+					$update_cliente["CLIE_Email"]  = MySQL::SQLValue($email);
 					$update_cliente["CLIE_DataUltimaAtualizacaoDados"]  = MySQL::SQLValue($lsDataHoraAtual);
 					if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
-						$db->TransactionRollback();
-						$db->Kill();
 						echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar seus dados [0]. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
 						exit;
 					}
@@ -490,16 +749,17 @@ switch ($acao) {
 					
 				} else {
 					//INSERE CLIENTE
-					$cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf);
 					$cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
-					$cliente["CLIE_Email"]  = MySQL::SQLValue($email);
+					$cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
+					$cliente["CLIE_Observacao"]  = MySQL::SQLValue($observacao);
+					$cliente["CLIE_Aniversario"]  = MySQL::SQLValue($aniversario);
 					$cliente["CLIE_Celular"] = MySQL::SQLValue($celular);
+					$cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf);
+					$cliente["CLIE_Email"]  = MySQL::SQLValue($email);
 					$cliente["CLIE_DataCadastro"] = MySQL::SQLValue($lsDataHoraAtual);
 					
 					$resultado_cliente = $db->InsertRow("cliente", $cliente);
 					if (! $resultado_cliente) {
-						$db->TransactionRollback();
-						$db->Kill();
 						echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar seus dados [1]. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
 						exit;
 					}
@@ -511,31 +771,74 @@ switch ($acao) {
 			} else {
 				$db->TransactionRollback();
 				$db->Kill();
-				echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico e não conseguimos agendar seu momento [5]! Tente pelo Whatsapp (71) 8879-1014" }';
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico e não conseguimos salvar os dados [5]! Tente pelo Whatsapp (71) 8879-1014" }';
 				exit;			
 			}
 		} else { //Fim if se cpf foi passado
 			
-			//INSERE CLIENTE SEM CPF
-			$cliente["CLIE_CPF"]  = MySQL::SQLValue("");
-			$cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
-			$cliente["CLIE_Email"]  = MySQL::SQLValue($email);
-			$cliente["CLIE_Celular"] = MySQL::SQLValue($celular);
-			$cliente["CLIE_DataCadastro"] = MySQL::SQLValue($lsDataHoraAtual);
-			
-			$resultado_cliente = $db->InsertRow("cliente", $cliente);
-			if (! $resultado_cliente) {
-				$db->TransactionRollback();
-				$db->Kill();
-				echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados [8]." }';
+			if ($celular != "") {
+				if ($db->Query("SELECT CLIE_ID, CLIE_Nome FROM cliente where CLIE_CELULAR = '" . $celular . "'")) {
+					if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+						
+						$linha = $db->Row(0);
+						$nomeCliente = $linha->CLIE_Nome;
+					
+						echo '{ "resultado": "ERRO", "mensagem": "A cliente ' . $nomeCliente . ' já está cadastrada com este celular. Pesquise na lista pelo nome." }';
+						exit;
+					} else {
+						//NAO ENCONTROU CLIENTE PELO CELULAR: INSERE NOVO CLIENTE
+						$cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
+						$cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
+						$cliente["CLIE_Observacao"]  = MySQL::SQLValue($observacao);
+						$cliente["CLIE_Aniversario"]  = MySQL::SQLValue($aniversario);
+						$cliente["CLIE_Celular"] = MySQL::SQLValue($celular);
+						$cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf);
+						$cliente["CLIE_Email"]  = MySQL::SQLValue($email);
+						$cliente["CLIE_DataCadastro"] = MySQL::SQLValue($lsDataHoraAtual);
+						
+						$resultado_cliente = $db->InsertRow("cliente", $cliente);
+						if (! $resultado_cliente) {
+							echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados [11]." }';
+							exit;
+						}
+						
+						$db->TransactionEnd(); //Commit
+						echo '{ "resultado": "SUCESSO", "mensagem": "' . $resultado_cliente . '"}';
+						exit;
+					}
+				} else {
+					$db->TransactionRollback();
+					$db->Kill();
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico e não conseguimos salvar os dados [5]! Tente pelo Whatsapp (71) 8879-1014" }';
+					exit;			
+				}
+			} else {
+				
+				//INSERE CLIENTE SEM CELULAR
+				$cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
+				$cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
+				$cliente["CLIE_Observacao"]  = MySQL::SQLValue($observacao);
+				$cliente["CLIE_Aniversario"]  = MySQL::SQLValue($aniversario);
+				$cliente["CLIE_Celular"] = MySQL::SQLValue($celular);
+				$cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf);
+				$cliente["CLIE_Email"]  = MySQL::SQLValue($email);
+				$cliente["CLIE_DataCadastro"] = MySQL::SQLValue($lsDataHoraAtual);
+				
+				$resultado_cliente = $db->InsertRow("cliente", $cliente);
+				if (! $resultado_cliente) {
+					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados [8]." }';
+					exit;
+				}
+				
+				$db->TransactionEnd(); //Commit
+				echo '{ "resultado": "SUCESSO", "mensagem": "' . $resultado_cliente . '"}';
 				exit;
+
 			}
 			
-			$db->TransactionEnd(); //Commit
-			echo '{ "resultado": "SUCESSO", "mensagem": "' . $resultado_cliente . '"}';
-			exit;
 		}
 		break;
+		
 		
 	case "obteragendamentos":
 		

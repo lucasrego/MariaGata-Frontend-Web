@@ -48,17 +48,17 @@ $(function() {
 			
 			$("#cmbClientes").append( "<option value=''>Selecione ou cadastre um novo</option>");
 			
-			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
+			//Se o JSON não tiver a opção resultado é porque 1 ou mais registro foram retornados
 			if (typeof jsonRetorno.resultado === "undefined") {				
 				$.each(jsonRetorno, function( index, value ) {
-					//Retorno: CLIE_ID, CLIE_Nome, CLIE_CPF, CLIE_Email, CLIE_Celular
+					//Retorno: CLIE_ID, CLIE_Nome, CLIE_CPF, CLIE_Email, CLIE_Celular, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario
 					selected = "";				
 					if (typeof clienteParaSelecionar !== 'undefined') {
 						if (clienteParaSelecionar == value.CLIE_ID) {
 							selected = "selected";
 						}
 					}
-					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
+					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + ' ' + value.CLIE_Sobrenome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
 				}); //Fim each json clientes
 			} else {
 				exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
@@ -78,7 +78,8 @@ $(function() {
 			type: 'POST',
 			data: {
 				a: 'obterservicosfilial',
-				filial: 1
+				filial: 1,
+				agendamento: 'S'
 			},
 			context: document.body
 			
@@ -185,6 +186,7 @@ $(function() {
 		$("#cmbClientes").val("");
 		$('#cmbClientes').trigger('chosen:updated');
 	}
+	
 	
 	$('#btnEncontrarHorarios').click(function (e) {
 		
@@ -464,6 +466,16 @@ $(function() {
 	});
 	
 	$('#btnCadastrarCliente').click(function (e) {
+		
+		//Limpar campos para novo cadastro
+		$('#nomeCadastroCliente').val("");
+		$('#sobrenomeCadastroCliente').val("");
+		$('#observacaoCadastroCliente').val("");
+		$('#aniversarioCadastroCliente').val("");
+		$('#celularCadastroCliente').val("");
+		$('#cpfCadastroCliente').val("");
+		$('#emailCadastroCliente').val("");
+		
 		$('#modalCadastrarCliente').modal('show');
 	});	
 	
@@ -618,12 +630,16 @@ $(function() {
 	
 	$('#modalCadastrarClienteSalvar').click(function (e) {
 		
-		var cpf = $('#cpfCadastroCliente').val().trim().replace(/\D/g,'');
 		var nome = $('#nomeCadastroCliente').val().trim();
-		var email = $('#emailCadastroCliente').val().trim();
+		var sobrenome = $('#sobrenomeCadastroCliente').val().trim();
+		var observacao = $('#observacaoCadastroCliente').val().trim();
+		var aniversario = $('#aniversarioCadastroCliente').val().trim().replace(/\D/g,'');
 		var celular = $('#celularCadastroCliente').val().trim().replace(/\D/g,'');
+		var cpf = $('#cpfCadastroCliente').val().trim().replace(/\D/g,'');
+		var email = $('#emailCadastroCliente').val().trim();
 		
-		//exibirMensagem('Dados', 'cpf: ' + cpf + ', nome: ' + nome + ', email: ' + email + ', celular: ' + celular);
+		//exibirMensagem('Dados', 'aniversario: ' + aniversario + ', observacao: ' + observacao + ', sobrenome: ' + sobrenome + ', celular: ' + celular);
+		//return false;
 		
 		if (cpf != "") {
 			if (cpf.length != 11) {
@@ -637,10 +653,7 @@ $(function() {
 			return false;
 		}
 		
-		if (celular == "") {
-			exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">CELULAR</span> não foi preenchido.');			
-			return false;
-		} else {
+		if (celular != "") {
 			if ((celular.length != 10)&&(celular.length != 11)) {				
 				exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">CELULAR</span> deve possuir 10 ou 11 dígitos.');		
 				return false;
@@ -652,10 +665,13 @@ $(function() {
 			type: 'POST',
 			data: {
 				a: 'salvardadosusuario',
-				cpf: cpf,
 				nome: nome,
-				email: email,
-				celular: celular
+				sobrenome: sobrenome,
+				observacao: observacao,
+				aniversario: aniversario,
+				celular: celular,
+				cpf: cpf,
+				email: email				
 			},
 			context: document.body
 			
@@ -672,7 +688,7 @@ $(function() {
 			
 			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (jsonRetorno.resultado == 'SUCESSO') {
-				exibirMensagem('Maria Gata', 'Usuário cadastrado com sucesso!');
+				exibirMensagem('Maria Gata', 'Cliente cadastrado com sucesso!');
 				$('#modalCadastrarCliente').modal('hide');
 				carregarClientes(jsonRetorno.mensagem); //Recarrega a lista de cliente e já seleciona o ID do usuário recém cadastrado.
 			} else {

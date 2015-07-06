@@ -1,27 +1,431 @@
 $(function() {
 	
-	//Preencher datas disponíveis
-	function carregarDatas(qtdDiasCarregar) {
-		
-		$('#dataAgendamento').append("<option value='' selected>Selecione</option>");	
-		for (i = 0; i < qtdDiasCarregar; i++) {
-			var d = new Date();
-			d.setDate( d.getDate() + i );
-			var dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
-			dia = d.getDay(); //0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sab
-			nome_dia = dias[dia];
-			mes = d.getMonth() + 1;
-			data_id = d.getFullYear() + "/" + mes + "/" + d.getDate();
-			data_exibicao = d.getDate() + "/" + mes + "/" + d.getFullYear() + " (" + nome_dia + ")";
-			if ((dia != 0)&&((dia != 1))) {
-				$('#dataAgendamento').append('<option value=' + data_id + '>' + data_exibicao + '</option>');
-			}		
+	jsonFuncionarios = "";
+	selectorFuncionario = "";
+	
+	jsonServicos = "";
+	selectorServico = "";
+	
+	$('#alertaCliente').hide();
+	
+	$('.campoMoeda').priceFormat({
+		prefix: '',
+		centsSeparator: ',',
+		thousandsSeparator: '.',
+		limit: 6
+	});
+	
+	$('.campoMoedaNegativo').priceFormat({
+		prefix: '',
+		centsSeparator: ',',
+		thousandsSeparator: '.',
+		limit: 6,
+		allowNegative: true
+	});
+	
+	function atualizarPriceFormat(objeto) {
+		objeto.priceFormat({
+			prefix: '',
+			centsSeparator: ',',
+			thousandsSeparator: '.',
+			limit: 6
+		});
+	}
+	
+	function atualizarPriceFormatNegativo(objeto) {
+		objeto.priceFormat({
+			prefix: '',
+			centsSeparator: ',',
+			thousandsSeparator: '.',
+			limit: 6,
+			allowNegative: true
+		});
+	}
+	
+	function obterValorPriceFormatSemMascara(objeto) {
+		var valor = objeto.unmask();
+		if (valor == "") {
+			return parseInt(0);
+		} else {
+			return parseInt(valor);
 		}
-		$('#dataAgendamento').trigger('chosen:updated');
+	}
+	
+	//$(".campoValorTabelaServicos, .campoValorResumo").focusout(function(){
+	$('.campoValorTabelaServicos, .campoValorResumo').on('focusout', function() {
+		atualizaValoresResumo();
+	});
+	
+	function atualizaValoresResumo() {
+		
+		var somaServicos = 0;
+		$(".campoValorTabelaServicos").each(function( index ) {
+			somaServicos = parseInt(somaServicos) + obterValorPriceFormatSemMascara($(this));
+		});
+		$('#totalServicos').html(somaServicos);
+		atualizarPriceFormat($('#totalServicos'));
+		
+		//$('#valeFuturo').html(somaServicos - obterValorPriceFormatSemMascara($('#valeExistente')) - obterValorPriceFormatSemMascara($('#dinheiro')) - obterValorPriceFormatSemMascara($('#debito')) - obterValorPriceFormatSemMascara($('#credito')));
+		$('#valeFuturo').html(obterValorPriceFormatSemMascara($('#valeExistente')) + obterValorPriceFormatSemMascara($('#dinheiro')) + obterValorPriceFormatSemMascara($('#debito')) + obterValorPriceFormatSemMascara($('#credito')) - somaServicos);
+		atualizarPriceFormatNegativo($('#valeFuturo'));
+		
+		if (obterValorPriceFormatSemMascara($('#valeFuturo')) == 0) {
+			$('#btnConcluirAtendimento').text('CONCLUIR ATENDIMENTO');
+			$('#btnConcluirAtendimento').removeClass("btn-danger").removeClass("btn-gray").removeClass("disabled").addClass( "btn-primary" );
+		} else if (obterValorPriceFormatSemMascara($('#valeFuturo')) > 0) {
+			$('#btnConcluirAtendimento').text('CONCLUIR ATENDIMENTO E GERAR VALE DE: R$ ' + $('#valeFuturo').html());
+			$('#btnConcluirAtendimento').removeClass("btn-primary").removeClass("btn-gray").removeClass("disabled").addClass( "btn-danger" );
+		} else if (obterValorPriceFormatSemMascara($('#valeFuturo')) < 0) {
+			$('#btnConcluirAtendimento').text('PAGAMENTO PENDENTE');
+			$('#btnConcluirAtendimento').removeClass("btn-primary").removeClass("btn-danger").addClass( "btn-gray" ).addClass( "disabled" );
+		}
+
+	}
+	
+	function adicionarLinhaTabela() {
+		var lsTBody = "";
+		
+		var d = new Date();
+		var milisegundo = d.getTime();
+		
+		lsTBody += "<tr class='linhaTabelaServicos' id='" + milisegundo + "'>";
+		lsTBody += "	<td>";
+		lsTBody += "		<select id='cmbServico" + milisegundo + "' data-placeholder='Selecione' class='col-md-12 chosen cmbServico'></select>";
+		lsTBody += "	</td>";
+		lsTBody += "	<td>";
+		lsTBody += "		<select id='cmbFuncionario" + milisegundo + "' data-placeholder='Selecione' class='col-md-12 chosen cmbFuncionario'></select>";
+		lsTBody += "	</td>";
+		lsTBody += "	<td>";
+		lsTBody += "		<div class='col-sm-9 col-lg-10 controls'>";
+		lsTBody += "			<input type='text' id='valorCobrado' placeholder='' class='form-control campoMoeda campoValorTabelaServicos tblValorCobrado'>";
+		lsTBody += "		</div>";
+		lsTBody += "	</td>";
+		lsTBody += "	<td>";
+		lsTBody += "		<div class='btn-group'>";
+		lsTBody += "			<a id='btnNovaLinha" + milisegundo + "' class='btn btn-sm btn-primary show-tooltip btnNovaLinha' title='Incluir Serviço' href='#'><i class='fa fa-plus-circle'></i></a>";
+		lsTBody += "			<a class='btn btn-sm btn-danger show-tooltip btnLimparLinha' title='Excluir' href='#'><i class='fa fa-trash-o'></i></a>";
+		lsTBody += "		</div>";
+		lsTBody += "	</td>";
+		lsTBody += "</tr>";
+		
+		$('#tbodyTabelaServicos').append(lsTBody);	
+		
+		carregarFuncionarios($('#cmbFuncionario' + milisegundo));
+		carregarServicosFilial($('#cmbServico' + milisegundo));
+		
+		$(".chosen").chosen({
+			no_results_text: "Ops, não encontramos nada com: ",
+			width: "100%",
+			search_contains: true
+		});
+
+		$('.campoMoeda').priceFormat({
+			prefix: '',
+			centsSeparator: ',',
+			thousandsSeparator: '.',
+			limit: 6
+		});
+		
+		$('.campoValorTabelaServicos, .campoValorResumo').on('focusout', function() {
+			atualizaValoresResumo();
+		});
+		
+		$('#btnNovaLinha' + milisegundo).click(function (e) {
+			adicionarLinhaTabela();
+		});
+		
+		$('.btnLimparLinha').click(function (e) {
+			
+			var linhaClicada = $(this).closest('tr');	
+			
+			if ($('.linhaTabelaServicos').length == 1) {
+				exibirMensagem('Maria Gata', 'A tabela de serviços deve possui pelo menos um item.');
+			} else {
+				//linhaClicada.remove();
+				linhaClicada.detach();
+				atualizaValoresResumo();
+			}
+		
+		});
 		
 	}
-	carregarDatas(30);
 	
+	adicionarLinhaTabela();
+	
+	
+	function carregarFuncionarios(objeto) {
+		
+		if (typeof objeto !== 'undefined') {
+			selectorFuncionario = objeto;
+		} else {
+			selectorFuncionario = $('.cmbFuncionario');
+		}
+		
+		selectorFuncionario.empty();
+		selectorFuncionario.append( "<option value='0' selected>Selecione</option>");
+				
+		if (jsonFuncionarios == "") {
+		
+			$.ajax({
+				url: "http://mariagata.com.br/sistema/mariagata.php",
+				type: 'POST',
+				data: {
+					a: 'obterfuncionarios',
+					filial: 1
+				},
+				context: document.body
+				
+			})
+			.always(function() {		
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+			})
+			.done(function(ret) {
+				
+				var jsonRetorno = jQuery.parseJSON(ret);
+				
+				jsonFuncionarios = jsonRetorno;
+				
+				$.each(jsonRetorno, function( index, value ) {
+					
+					//Retorno: FUNC_ID, FUNC_Nome, FUNC_Especialidade
+					selectorFuncionario.append( "<option value='" + value.FUNC_ID + "'>" + value.FUNC_Nome + "</option>");
+					
+				}); //Fim each json funcionarios
+		
+				selectorFuncionario.trigger('chosen:updated');
+		
+			}); //Fim ajax
+		
+		} else {
+			$.each(jsonFuncionarios, function( index, value ) {					
+				selectorFuncionario.append( "<option value='" + value.FUNC_ID + "'>" + value.FUNC_Nome + "</option>");
+			});
+			selectorFuncionario.trigger('chosen:updated');
+		}
+				
+	}	
+	
+	$('#btnNovoCliente').click(function (e) {
+		
+		//Limpar campos para novo cadastro
+		$('#nomeCadastroCliente').val("");
+		$('#sobrenomeCadastroCliente').val("");
+		$('#observacaoCadastroCliente').val("");
+		$('#aniversarioCadastroCliente').val("");
+		$('#celularCadastroCliente').val("");
+		$('#cpfCadastroCliente').val("");
+		$('#emailCadastroCliente').val("");
+		
+		$('#modalCadastrarCliente').modal('show');
+	});
+	
+	
+	$('#btnConcluirAtendimento').click(function (e) {
+		
+		var cliente = $('.cmbClientes').val();
+		var dataAtendimento = $('#dataAtendimento').val();
+		if ((dataAtendimento.length != 10)||(dataAtendimento == "__/__/____")) {
+			exibirMensagem('Maria Gata', 'A data do atendimento não foi informada ou está inválida.');
+			return false;
+		} else {
+			dataAtendimento = dataAtendimento.split("/")[2] + "-" + dataAtendimento.split("/")[1] + "-" + dataAtendimento.split("/")[0]; 
+		}
+		
+		var totalServicos = $('#totalServicos').html();
+		var valeExistente = $('#valeExistente').html();
+		var dinheiro = $('#dinheiro').val();
+		var debito = $('#debito').val();
+		var credito = $('#credito').val();
+		var valeFuturo = $('#valeFuturo').html();
+		
+		var filial = 1;
+		var usuario = 1;
+		
+		var linhasServicos = $('.linhaTabelaServicos');
+		
+		if (cliente == "") {
+			exibirMensagem('Maria Gata', 'Selecione ou cadastre um Cliente.');
+			return false;
+		}
+		
+		encontrouFalhaNaTabela = false;
+		dadosServicosProdutos = "";
+		$.each(linhasServicos, function( index, value ) {
+			
+			var servico = $(this).find('select.cmbServico option:selected');
+			var funcionario = $(this).find('select.cmbFuncionario option:selected');	
+			var valor = $(this).find('input.campoValorTabelaServicos');
+			
+			dadosServicosProdutos += servico.val() + "|" + funcionario.val() + "|" + valor.val() + "$";
+			
+			if (servico.val() == "0") {
+				exibirMensagem('Maria Gata', 'selecione o serviço ou produto.');
+				encontrouFalhaNaTabela = true;
+				return false;
+			}
+			
+			if (funcionario.val() == "0") {
+				exibirMensagem('Maria Gata', 'Selecione um funcionário para cada serviço/produto.');
+				encontrouFalhaNaTabela = true;
+				return false;
+			}
+			
+			if ((valor.val() == "")||(valor.val() == "0,00")) {
+				exibirMensagem('Maria Gata', 'Todos os serviços/produtos devem ter o valor preenchido.');
+				encontrouFalhaNaTabela = true;
+				return false;
+			}
+			
+		}); //Fim each
+		
+		dadosServicosProdutos = dadosServicosProdutos.substring(0,(dadosServicosProdutos.length - 1)).toString();
+				
+		//Sai da função, pois o return false dentro do each apenas sai do loop
+		if (encontrouFalhaNaTabela) {
+			return false;
+		}		
+		
+		if ((totalServicos == "")||(totalServicos == "0,00")) {
+			exibirMensagem('Maria Gata', 'Nenhum valor informado.');
+			return false;
+		}
+		
+		if (((valeExistente == "")||(valeExistente == "0,00"))&&((dinheiro == "")||(dinheiro == "0,00"))&&((debito == "")||(debito == "0,00"))&&((credito == "")||(credito == "0,00"))) {
+			exibirMensagem('Maria Gata', 'Nenhuma forma de pagamento preenchida.');
+			return false;
+		}
+		
+		$.ajax({
+			url: "http://mariagata.com.br/sistema/mariagata.php",
+			type: 'POST',
+			data: {
+				a: 'salvaratendimento',
+				dataAtendimento: dataAtendimento,
+				filial: filial,
+				cliente: cliente,
+				usuario: usuario,
+				dadosServicosProdutos: dadosServicosProdutos,
+				totalServicos: totalServicos,
+				valeExistente: valeExistente,
+				dinheiro: dinheiro,
+				debito: debito,
+				credito: credito,
+				valeFuturo: valeFuturo
+			},
+			context: document.body
+			
+		})
+		.always(function() {		
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+		})
+		.done(function(ret) {
+			
+			//Teste se o objeto retornao é JSON, ou seja, existem dados
+			var jsonRetorno = jQuery.parseJSON(ret);
+			
+			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
+			if (jsonRetorno.resultado == 'SUCESSO') {
+				exibirAtendimentos();
+				limparAtendimento();
+				exibirMensagem('Maria Gata', 'Atendimento registrado com sucesso.');
+			} else {
+				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
+			}	
+		}); //Fim ajax
+		
+	});
+	
+	
+	function limparAtendimento() {
+		$(".cmbClientes").val("");
+		$('.cmbClientes').trigger('chosen:updated');
+		
+		$('#alertaCliente').hide();
+				
+		$('#tbodyTabelaServicos').empty();
+		adicionarLinhaTabela();
+		
+		$('#dinheiro').val("");
+		$('#debito').val("");
+		$('#credito').val("");
+		$('#valeExistente').html("0");
+		
+		atualizarPriceFormat($('#dinheiro'));
+		atualizarPriceFormat($('#debito'));
+		atualizarPriceFormat($('#credito'));
+		atualizarPriceFormat($('#valeExistente'));
+		
+		atualizaValoresResumo();
+	}
+	
+	
+	$('.cmbClientes').on('change', function(evt, params) {
+		
+		$('#alertaCliente').hide();
+		
+		if (params.selected == "") {
+			$('#valeExistente').html("0");
+			atualizarPriceFormat($('#valeExistente'));
+			atualizaValoresResumo();
+		} else {
+			//Obtem dados do cliente e verifica se possui vale
+			$.ajax({
+				url: "http://mariagata.com.br/sistema/mariagata.php",
+				type: 'POST',
+				data: {
+					a: 'obterdadoscliente',
+					cliente: params.selected	
+				},
+				context: document.body
+				
+			})
+			.always(function() {		
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+			})
+			.done(function(ret) {
+				
+				//Teste se o objeto retornao é JSON, ou seja, existem dados
+				var jsonRetorno = jQuery.parseJSON(ret);
+				
+				//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
+				if (typeof jsonRetorno.resultado === "undefined") {				
+					
+					//CLIE_CPF, CLIE_Nome, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario, CLIE_Email, CLIE_Celular, CLIE_DataCadastro, CLIE_DataUltimaAtualizacaoDados, CLIE_ValeAcumulado
+					
+					$('#alertaClienteConteudo').html("");
+					
+					if ((jsonRetorno[0].CLIE_Celular == "")||(jsonRetorno[0].CLIE_Celular == null)) {
+						$('#alertaClienteConteudo').append(" <strong>Atualize o celular! </strong> ");						
+						$('#alertaCliente').show();
+					}
+					if ((jsonRetorno[0].CLIE_Email == "")||(jsonRetorno[0].CLIE_Email == null)) {
+						$('#alertaClienteConteudo').append(" <strong>Atualize o email! </strong> ");						
+						$('#alertaCliente').show();
+					}
+					if ((jsonRetorno[0].CLIE_Observacao != "")&&(jsonRetorno[0].CLIE_Observacao != null)) {
+						$('#alertaClienteConteudo').append(" <strong>Observação: </strong>" + jsonRetorno[0].CLIE_Observacao);						
+						$('#alertaCliente').show();
+					}
+					
+					$('#valeExistente').html(jsonRetorno[0].CLIE_ValeAcumulado);
+					atualizarPriceFormat($('#valeExistente'));
+				} else {
+					exibirMensagem('Maria Gata', jsonRetorno.mensagem);
+				}
+				atualizaValoresResumo();
+			}); //Fim ajax
+
+			
+		}
+		
+	});
+
 	function carregarClientes(clienteParaSelecionar) {
 		
 		$.ajax({
@@ -44,11 +448,9 @@ $(function() {
 			var jsonRetorno = jQuery.parseJSON(ret);
 			var selected = "";
 			
-			$('#cmbClientes').empty();			
+			$('.cmbClientes').empty();
+			$(".cmbClientes").append( "<option value=''>Selecione ou cadastre um novo</option>");
 			
-			$("#cmbClientes").append( "<option value=''>Selecione ou cadastre um novo</option>");
-			
-			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (typeof jsonRetorno.resultado === "undefined") {				
 				$.each(jsonRetorno, function( index, value ) {
 					//Retorno: CLIE_ID, CLIE_Nome, CLIE_CPF, CLIE_Email, CLIE_Celular
@@ -58,572 +460,107 @@ $(function() {
 							selected = "selected";
 						}
 					}
-					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
+					$(".cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + ' ' + value.CLIE_Sobrenome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
 				}); //Fim each json clientes
 			} else {
 				exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
 			} //Fim teste jsonRetorno.resultado
 			
 			//Atualiza combo chosen
-			$('#cmbClientes').trigger('chosen:updated');
+			$('.cmbClientes').trigger('chosen:updated');
 			
 		}); //Fim ajax
 		
 	}
 	
-	function carregarServicosFilial() {
+	carregarClientes();
+	
+	function carregarServicosFilial(objeto) {
 		
-		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
-			type: 'POST',
-			data: {
-				a: 'obterservicosfilial',
-				filial: 1
-			},
-			context: document.body
-			
-		})
-		.always(function() {		
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
-		})
-		.done(function(ret) {
-			
-			//Teste se o objeto retornao é JSON, ou seja, existem dados
-			var jsonRetorno = jQuery.parseJSON(ret);
-				
-			$.each(jsonRetorno, function( index, value ) {				
-				
-				if (value.SERV_Tipo == "PA") {
-					$("#pacotesAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");
-				}
-				if (value.SERV_Tipo == "EC") {
-					$("#escovariaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");
-				}
-				if (value.SERV_Tipo == "EM") {
-					$("#esmalteriaAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");
-				}
-				if (value.SERV_Tipo == "MA") {
-					$("#maquiagemAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + " (" + value.FISE_Preco + ")</option>");					
-				}
-				if (value.SERV_Tipo == "DE") {
-					$("#depilacaoAgendamento").append( "<option data-atendimentoParalelo='" + value.FISE_AtendimentoParalelo + "' value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");					
-				}
-				
-			}); //Fim each json servicos
-			
-			//Atualiza combos chosen
-			$('#pacotesAgendamento').trigger('chosen:updated');
-			$('#escovariaAgendamento').trigger('chosen:updated');
-			$('#esmalteriaAgendamento').trigger('chosen:updated');
-			$('#maquiagemAgendamento').trigger('chosen:updated');
-			$('#depilacaoAgendamento').trigger('chosen:updated');
-			
-		}); //Fim ajax
-		
-	}
-	
-	temEscovaria = false;
-	temEsmalteria = false;
-	dataAgendamentoExibicao = "";
-	dataAgendamento = "";
-	
-	$('#resultadoPesquisa').hide();
-	
-	$('#btnAtendimentoParaleloEsmalteria').click(function (e) {
-		if (atendimentoParalelo == "S") {
-			if ($("#btnAtendimentoParaleloEsmalteria").hasClass("btn-gray")) {
-				$('#btnAtendimentoParaleloEsmalteria').html("Atendimento Paralelo: Sim");
-				$('#btnAtendimentoParaleloEsmalteria').removeClass("btn-gray").addClass( "btn-lime" );				
-			} else {
-				$('#btnAtendimentoParaleloEsmalteria').html("Atendimento Paralelo: Não");
-				$('#btnAtendimentoParaleloEsmalteria').removeClass("btn-gray").addClass( "btn-gray" );
-			}
-			$('.btnEsmalteriaDisponivel').removeClass("btn-lime").addClass( "btn-pink" ); //Limpa os horário selecionados para que o usuário escolha novamente
+		if (typeof objeto !== 'undefined') {
+			selectorServico = objeto;
 		} else {
-			exibirMensagem('Ops!', 'Pelo menos um serviço que permite Atendimento Paralelo precisa ser selecionado');
+			selectorServico = $('.cmbFuncionario');
 		}
 		
-	});
-	
-	$('#btnAtendimentoParaleloEscovaria').click(function (e) {
-		if (atendimentoParalelo == "S") {
-			if ($("#btnAtendimentoParaleloEscovaria").hasClass("btn-gray")) {
-				$('#btnAtendimentoParaleloEscovaria').html("Atendimento Paralelo: Sim");
-				$('#btnAtendimentoParaleloEscovaria').removeClass("btn-gray").addClass( "btn-lime" );
-			} else {
-				$('#btnAtendimentoParaleloEscovaria').html("Atendimento Paralelo: Não");
-				$('#btnAtendimentoParaleloEscovaria').removeClass("btn-gray").addClass( "btn-gray" );
-			}
-			$('.btnEscovariaDisponivel').removeClass("btn-lime").addClass( "btn-pink" ); //Limpa os horário selecionados para que o usuário escolha novamente
-		} else {
-			exibirMensagem('Ops!', 'Pelo menos um serviço que permite Atendimento Paralelo precisa ser selecionado');
-		}
-	});
-	
-	
-	function limparPesquisa() {
-		$("#dataAgendamento").val("");
-		$('#dataAgendamento').trigger('chosen:updated');
-		
-		$("#pacotesAgendamento").val("");
-		$('#pacotesAgendamento').trigger('chosen:updated');
-		
-		$("#esmalteriaAgendamento").val("");
-		$('#esmalteriaAgendamento').trigger('chosen:updated');
-		
-		$("#escovariaAgendamento").val("");
-		$('#escovariaAgendamento').trigger('chosen:updated');
-		
-		$("#maquiagemAgendamento").val("");
-		$('#maquiagemAgendamento').trigger('chosen:updated');
-		
-		$("#depilacaoAgendamento").val("");
-		$('#depilacaoAgendamento').trigger('chosen:updated');
-		
-		$("#cmbClientes").val("");
-		$('#cmbClientes').trigger('chosen:updated');
-	}
-	
-	$('#btnEncontrarHorarios').click(function (e) {
-		
-		$('#resultadoPesquisa').hide();
-		
-		var unidadeAgendamento = $.trim($("#unidadeAgendamento").val());
-		dataAgendamento = $("#dataAgendamento").val();
-		var pacotesAgendamento = $.trim($("#pacotesAgendamento").val());
-		var esmalteriaAgendamento = $.trim($("#esmalteriaAgendamento").val());
-		var escovariaAgendamento = $.trim($("#escovariaAgendamento").val());
-		var maquiagemAgendamento = $.trim($("#maquiagemAgendamento").val());
-		var depilacaoAgendamento = $.trim($("#depilacaoAgendamento").val());
-		
-		temEscovaria = false;
-		temEsmalteria = false;
-		servicos = "";
-		servicosnome = "";
-		atendimentoParalelo = "N";
-		
-		if ($('#pacotesAgendamento').val() != 0) {
-			servicos += $('#pacotesAgendamento').val() + ",";
-			servicosnome += $("#pacotesAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#pacotesAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");	
-		}
-		if ($('#esmalteriaAgendamento').val() != 0) {
-			servicos += $('#esmalteriaAgendamento').val() + ",";
-			servicosnome += $("#esmalteriaAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#esmalteriaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
-		}
-		if ($('#escovariaAgendamento').val() != 0) {
-			servicos += $('#escovariaAgendamento').val() + ",";
-			servicosnome += $("#escovariaAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#escovariaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
-		}
-		if ($('#maquiagemAgendamento').val() != 0) {
-			servicos += $('#maquiagemAgendamento').val() + ",";
-			servicosnome += $("#maquiagemAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#maquiagemAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
-		}
-		if ($('#depilacaoAgendamento').val() != 0) {
-			servicos += $('#depilacaoAgendamento').val() + ",";
-			servicosnome += $("#depilacaoAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#depilacaoAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
-		}
-		
-		if (unidadeAgendamento != 1) {
-			exibirMensagem('Atenção', 'Selecione a <span style="color:#00FF00">UNIDADE</span> para atendimento.');
-			$("#unidadeAgendamento").trigger('chosen:open');
-			return false;
-		}
-		if (dataAgendamento == '') {
-			exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">DATA</span> não foi preenchido.');
-			$("#dataAgendamento").datepicker( "show" );			
-			return false;
-		} else {
-			dataAgendamentoExibicao = $('#dataAgendamento option:selected').text();
-			dataAgendamento = $('#dataAgendamento').val();
-		}
-		if (servicos == "") {
-			exibirMensagem('Atenção', 'Nenhum <span style="color:#00FF00">PACOTE ou SERVIÇO</span> selecionado.');
-			return false;
-		} else {
-			//Remove vírgula para servico e virgula + espaço para servicosnome
-			servicos = servicos.substring(0,(servicos.length - 1)).toString();
-			servicosnome = servicosnome.substring(0,(servicosnome.length - 2)).toString();
-		}
-		
-		//exibirMensagem('Atenção', 'unidadeAgendamento: ' + unidadeAgendamento + ", dataAgendamento: " + dataAgendamento + ", servicos: " + servicos);
-					
-		$('#boxEsmalteriaConteudo').html("");
-		$('#boxEscovariaConteudo').html("");
-		
-		//Consultar disponibilidade de profissionais e os horário livres
-		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
-			type: 'POST',
-			data: {
-				a: 'obterprofissionaishorarios',
-				filial: unidadeAgendamento,
-				data: dataAgendamento,
-				servicos: servicos
-			},
-			context: document.body			
-		})
-		.always(function() {		
-			 			
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			exibirMensagem('Ops!', 'Ocorreu um erro inesperado ao pesquisar horários disponíveis.');
-		})
-		.done(function(ret) {
-			
-			var jsonRetorno = jQuery.parseJSON(ret);
-			
-			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
-			if (typeof jsonRetorno.resultado === "undefined") {
+		selectorServico.empty();
+		selectorServico.append( "<option value='0' selected>Selecione</option>");
 				
-				$('#textoBoxPesquisar').html(dataAgendamentoExibicao + " - " + servicosnome);
-				$('#box-content-pesquisar').css("display", "none");
-				$('#resultadoPesquisa').show();
+		if (jsonServicos == "") {
+		
+			$.ajax({
+				url: "http://mariagata.com.br/sistema/mariagata.php",
+				type: 'POST',
+				data: {
+					a: 'obterservicosfilial',
+					filial: 1,
+					atendimento: 'S'
+				},
+				context: document.body
+			})
+			.always(function() {		
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+			})
+			.done(function(ret) {
 				
-				var newPageHorarios = 	'';													
-				
-				var ultimoGrupo = "";
-				var ultimoFuncionario = "";
+				var jsonRetorno = jQuery.parseJSON(ret);
 				var totalItens = jsonRetorno.length;
-				var lsHTML = "";
-				var classeBotao = "";
-				var idBotao = "";
-				var classeBotaoDisponivel = "";
-				var divGrupo = "";
-				var qtdHorariosProfissional = 0;
-				var horario = "";
-								
+				
+				jsonServicos = jsonRetorno;
+				
+				//grupoAnterior = "";
+				
 				$.each(jsonRetorno, function( index, value ) {
 					
-					//{"FUNC_ID":"1","FUNC_Nome":"Tati","FUHB_Horario":"09:00:00","FUHB_HorarioBloqueado":"N","GSER_ID":"1",", FUNC_Especialidade":"Manicure e Art Designer"}
-					
-					//Transforma de 09:30:00 para 09:30
-					horario = value.FUHB_Horario.substring(0,(value.FUHB_Horario.length - 3));
-					
-					//Obtem e seta a div correspondente ao grupo
-					if (value.GSER_ID == 1) {
-						divGrupo = $('#boxEsmalteriaConteudo');
-						classeBotaoDisponivel = "btnEsmalteriaDisponivel";
-						temEsmalteria = true;
-					} else {
-						divGrupo = $('#boxEscovariaConteudo');
-						classeBotaoDisponivel = "btnEscovariaDisponivel";
-						temEscovaria = true;
-					}
-					
-					idBotao = value.FUNC_Nome + "|" + value.FUNC_ID + "|" + horario;
-					
-					//Se novo funcionário
-					//vazio - 2, 2-2..., 2-1, 1-1, 1-3, 3-3...
-					if (ultimoFuncionario != value.FUNC_ID) {
-						
-						qtdHorariosProfissional = 1;
-						
-						if (index != 0) {
-							//Se não for o primeiro registro, fecha o anterior e append
-							
-											newPageHorarios += "</div>";
-										newPageHorarios += "</div>";
-									newPageHorarios += "</div>";
-								newPageHorarios += "</div>";
-							newPageHorarios += "</div>";
-							
-							divGrupoAnterior                         .append(newPageHorarios);
-							newPageHorarios = ""; //Limpa variável para próximo funcionário
-							
+					/*
+					if (index != 0) {
+						if (value.SERV_Tipo != grupoAnterior) {
+							selectorServico.append( "</optgroup>");
 						}
-						
-						//Se mudou de grupo, insere cabeçalho do grupo:
-						//if (ultimoGrupo != value.GSER_ID) {
-
-							newPageHorarios += "<div class='row'>";
-								newPageHorarios += "<div class='col-md-12'>";
-									newPageHorarios += "<div class='box' id='func1'>";
-										newPageHorarios += "<div class='box-title'>";
-											newPageHorarios += "<h3><i class='fa fa-female'></i> <b>" + value.FUNC_Nome + "</b> (" + value.FUNC_Especialidade + ")</h3>";
-											//newPageHorarios += "<div class='box-tool'>";
-												//newPageHorarios += "<a data-action='collapse' href='#'><i class='fa fa-chevron-up'></i></a>";
-											//newPageHorarios += "</div>";
-										newPageHorarios += "</div>";
-										newPageHorarios += "<div class='box-content'>";
-											newPageHorarios += "<div class='btn-toolbar'>";
-							
-							//Registra horário
-							if (value.FUHB_HorarioBloqueado == "N") {
-								newPageHorarios += "<button id='" + idBotao + "' class='btn btn-pink btn-sm " + classeBotaoDisponivel + "'>" + horario + "</button>";						
-							} else {
-								newPageHorarios += "<button id='" + idBotao + "' class='btn btn-gray btn-sm disabled'>" + horario + "</button>";								
-							}
-						//}
-					
-					} else {
-						
-						qtdHorariosProfissional = qtdHorariosProfissional + 1;						
-						
-						//Registra horário
-						if (value.FUHB_HorarioBloqueado == "N") {
-							newPageHorarios += "<button id='" + idBotao + "' class='btn btn-pink btn-sm " + classeBotaoDisponivel + "'>" + horario + "</button>";	
-						} else {
-							newPageHorarios += "<button id='" + idBotao + "' class='btn btn-gray btn-sm disabled'>" + horario + "</button>";
-						}				
 					}
+					if (value.SERV_Tipo != grupoAnterior) {
+						selectorServico.append( "<optgroup label='" + value.SERV_Tipo + "'>");
+					}
+					*/
+					selectorServico.append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
 					
+					/*
 					if (index == totalItens - 1) {
-						//Último item. Fecha ultimo grupo e apped
-										newPageHorarios += "</div>";
-									newPageHorarios += "</div>";
-								newPageHorarios += "</div>";
-							newPageHorarios += "</div>";
-						newPageHorarios += "</div>";
-						
-						divGrupo.append(newPageHorarios);
-
+						selectorServico.append( "</optgroup>");
 					}
-					
-					ultimoGrupo = value.GSER_ID;
-					ultimoFuncionario = value.FUNC_ID
-					
-					if (value.GSER_ID == 1) {
-						divGrupoAnterior = $('#boxEsmalteriaConteudo');
-					} else {
-						divGrupoAnterior = $('#boxEscovariaConteudo');
-					}
-					
-				}); //Fim each
-				
-				if (temEsmalteria) {
-					$('#boxEsmalteria').css("display", "block");
-				} else {
-					$('#boxEsmalteria').css("display", "none");
-				}
-				
-				if (temEscovaria) {
-					$('#boxEscovaria').css("display", "block");
-				} else {
-					$('#boxEscovaria').css("display", "none");
-				}
-				
-			} else {			
-				if (jsonRetorno.resultado == 'NAOENCONTRADO') {
-					exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
-				} else {
-					exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
-				}
-			}
-			
-		}); //Fim ajax pesquisarHorarios		
+					grupoAnterior = value.SERV_Tipo;
+					*/
+				}); //Fim each json servicos
 		
-	});
-	
-	$(document).on('click', '.btnEsmalteriaDisponivel', function (e) {
-		var limiteAtendimentoParaleloEsmalteria = 2;
+				selectorServico.trigger('chosen:updated');
 		
-		if ($(e.target).hasClass("btn-lime")) {
-			$(e.target).removeClass("btn-lime").addClass("btn-pink");
+			}); //Fim ajax
+		
 		} else {
-			//Se botão existe e atendimento paralelo desabilitado: hasClass("btn-gray")
-			if (($("#btnAtendimentoParaleloEsmalteria").hasClass("btn-gray"))||($("#btnAtendimentoParaleloEsmalteria").length == 0)) {
-				//Limpa a classe dos botões btnEsmalteriaDisponivel. Se não estiver disabled, aplica css do botão selecionado
-				$('.btnEsmalteriaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
-				$(e.target).removeClass("btn-pink").addClass("btn-lime");
-			} else {			
-				if ($('.btnEsmalteriaDisponivel.btn-lime').length < limiteAtendimentoParaleloEsmalteria) {
-					$(e.target).removeClass("btn-pink").addClass("btn-lime");
-				} else {
-					exibirMensagem('Ops!', 'Apenas ' + limiteAtendimentoParaleloEsmalteria + ' atendimentos em paralelo são permitidos para a Esmalteria. Se quiser alterar, clique em um horário selecionado para liberá-lo.');
-				}
-			}
-		}
-	});
-
-	$(document).on('click', '.btnEscovariaDisponivel', function (e) {
-		var limiteAtendimentoParaleloEscovaria = 2;
-		
-		if ($(e.target).hasClass("btn-lime")) {
-			$(e.target).removeClass("btn-lime").addClass("btn-pink");
-		} else {
-			//Se botão existe e atendimento paralelo desabilitado: hasClass("btn-gray")
-			if (($("#btnAtendimentoParaleloEscovaria").hasClass("btn-gray"))||($("#btnAtendimentoParaleloEscovaria").length == 0)) {
-				//Limpa a classe dos botões btnEscovaria. Se não estiver disabled, aplica css do botão selecionado
-				$('.btnEscovariaDisponivel').removeClass("btn-lime").addClass( "btn-pink" );
-				$(e.target).removeClass("btn-pink").addClass("btn-lime");
-			} else {
-				if ($('.btnEscovariaDisponivel.btn-lime').length < limiteAtendimentoParaleloEscovaria) {
-					$(e.target).removeClass("btn-pink").addClass("btn-lime");
-				} else {
-					exibirMensagem('Ops!', 'Apenas ' + limiteAtendimentoParaleloEscovaria + ' atendimentos em paralelo são permitidos. Se quiser alterar, clique em um horário selecionado para liberá-lo.');
-				}
-			}
-		}
-	});
-	
-	$('#btnCadastrarCliente').click(function (e) {
-		$('#modalCadastrarCliente').modal('show');
-	});	
-	
-	IdProfissionalEsmalteria = "";
-	nomeProfissionalEsmalteria = "";
-	horarioEsmalteria = "";
-	
-	IdProfissionalEscovaria = "";
-	nomeProfissionalEscovaria = "";
-	horarioEscovaria = "";
-	
-	msgNaoSelecionado = "";
-	
-	idSelecionadoEsmalteria = "";
-	idSelecionadoEscovaria = "";
-	
-	cliente = "";
-	filial = "";
-	
-	$('#btnConfirmarAgendamento').click(function (e) {
-		
-		IdProfissionalEsmalteria = "";
-		nomeProfissionalEsmalteria = "";
-		horarioEsmalteria = "";
-		
-		IdProfissionalEscovaria = "";
-		nomeProfissionalEscovaria = "";
-		horarioEscovaria = "";
-		
-		msgNaoSelecionado = "";
-		
-		idSelecionadoEsmalteria = "";
-		idSelecionadoEscovaria = "";
-		
-		cliente = "";
-		filial = "";
-		
-		if ($('#cmbClientes').val().trim() == "") {
-			exibirMensagem('Ops!', "Selecione um <span style='color:#00FF00'>CLIENTE</span> existente ou cadastre um novo.");
-			$('#box-content-pesquisar').css("display", "block");
-			$('#cmbClientes').trigger('chosen:open');
-			return false;
-		} else {
-			cliente = $('#cmbClientes').val();
+			$.each(jsonServicos, function( index, value ) {					
+				selectorServico.append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
+			});
+			selectorServico.trigger('chosen:updated');
 		}
 		
-		filial = $('#unidadeAgendamento').val();
-		
-		if (temEsmalteria) {
-			var arrayHorariosSelecionados = $('.btnEsmalteriaDisponivel.btn-lime').toArray();			
-			if (arrayHorariosSelecionados.length > 0) {
-				$.each(arrayHorariosSelecionados, function( index ) {
-					nomeProfissionalEsmalteria += arrayHorariosSelecionados[index].id.split("|")[0] + "|";
-					IdProfissionalEsmalteria += arrayHorariosSelecionados[index].id.split("|")[1] + "|";
-					horarioEsmalteria += arrayHorariosSelecionados[index].id.split("|")[2] + "|";
-				});
-				//Remove ultimo caracter "|"
-				nomeProfissionalEsmalteria = nomeProfissionalEsmalteria.substring(0,(nomeProfissionalEsmalteria.length - 1)).toString();
-				IdProfissionalEsmalteria = IdProfissionalEsmalteria.substring(0,(IdProfissionalEsmalteria.length - 1)).toString();
-				horarioEsmalteria = horarioEsmalteria.substring(0,(horarioEsmalteria.length - 1)).toString();
-			} else {
-				msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'>Esmalteria</span>.";
-			}
-			
-		}
-		
-		if (temEscovaria) {
-			var arrayHorariosSelecionados = $('.btnEscovariaDisponivel.btn-lime').toArray();			
-			if (arrayHorariosSelecionados.length > 0) {
-				$.each(arrayHorariosSelecionados, function( index ) {
-					nomeProfissionalEscovaria += arrayHorariosSelecionados[index].id.split("|")[0] + "|";
-					IdProfissionalEscovaria += arrayHorariosSelecionados[index].id.split("|")[1] + "|";
-					horarioEscovaria += arrayHorariosSelecionados[index].id.split("|")[2] + "|";
-				});
-				//Remove ultimo caracter "|"
-				nomeProfissionalEscovaria = nomeProfissionalEscovaria.substring(0,(nomeProfissionalEscovaria.length - 1)).toString();
-				IdProfissionalEscovaria = IdProfissionalEscovaria.substring(0,(IdProfissionalEscovaria.length - 1)).toString();
-				horarioEscovaria = horarioEscovaria.substring(0,(horarioEscovaria.length - 1)).toString();
-			} else {
-				if ((temEsmalteria)&&(IdProfissionalEsmalteria == "")) {
-					msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'> Esmalteria e Escovaria</span>.";
-				} else {
-					msgNaoSelecionado = "Selecione um profissional e horário para o(s) serviço(s) da <span style='color:#00FF00'>Escovaria</span>.";
-				}				
-			}
-		}
-				
-		if (msgNaoSelecionado == "") {
-			
-			$('#modalConfirmarAgendamentoLabelUnidade').html($('#unidadeAgendamento option:selected').text());
-			$('#modalConfirmarAgendamentoLabelData').html(dataAgendamentoExibicao);
-			$('#modalConfirmarAgendamentoLabelCliente').html($('#cmbClientes option:selected').text() + " (" + $('#cmbClientes').val() + ")");
-			$('#modalConfirmarAgendamentoLabelServicos').html(servicosnome);
-			
-			if (temEsmalteria) {
-				var profissionaisEsmalteriaExibicao = "";
-				var arrayNomesEsmalteria = nomeProfissionalEsmalteria.split("|");
-				var arrayHorarioEsmalteria = horarioEsmalteria.split("|");
-				
-				//var qtdProfissionais = arrayNomesEsmalteria.length;
-				
-				$.each(arrayNomesEsmalteria, function( index ) {
-					profissionaisEsmalteriaExibicao += arrayNomesEsmalteria[index] + ' (' + arrayHorarioEsmalteria[index] + 'h)' + ', ';
-				});
-				
-				//Remove ultimos 2 caracters ", "
-				profissionaisEsmalteriaExibicao = profissionaisEsmalteriaExibicao.substring(0,(profissionaisEsmalteriaExibicao.length - 2)).toString();
-				
-				$('#modalConfirmarAgendamentoLabelEsmalteria').html(profissionaisEsmalteriaExibicao);
-			} else {
-				$('#modalConfirmarAgendamentoLabelEsmalteria').html('Não pretende utilizar.');
-			}
-			
-			if (temEscovaria) {
-				var profissionaisEscovariaExibicao = "";
-				var arrayNomesEscovaria = nomeProfissionalEscovaria.split("|");
-				var arrayHorarioEscovaria = horarioEscovaria.split("|");
-				
-				//var qtdProfissionais = arrayNomesEsmalteria.length;
-				
-				$.each(arrayNomesEscovaria, function( index ) {
-					profissionaisEscovariaExibicao += arrayNomesEscovaria[index] + ' (' + arrayHorarioEscovaria[index] + 'h)' + ', ';
-				});
-				
-				//Remove ultimos 2 caracters ", "
-				profissionaisEscovariaExibicao = profissionaisEscovariaExibicao.substring(0,(profissionaisEscovariaExibicao.length - 2)).toString();
-				
-				$('#modalConfirmarAgendamentoLabelEscovaria').html(profissionaisEscovariaExibicao);
-			} else {
-				$('#modalConfirmarAgendamentoLabelEscovaria').html('Não pretende utilizar.');
-			}
-
-			$('#modalConfirmarAgendamento').modal('show');
-		} else {
-			if (temEsmalteria || temEscovaria) {
-				exibirMensagem('Ops!', msgNaoSelecionado);
-			} else {
-				exibirMensagem('Ops!', 'Pesquise e selecione os profissionais e horários para o agendamento.');
-			}
-		}
-	});
+	}
 	
-	$('#btnNovaPesquisa').click(function (e) {
-		
-		$('#textoBoxPesquisar').html("Pesquisar");
-		
-		$('#box-content-pesquisar').css("display", "block");
 	
-		$('#resultadoPesquisa').hide();
-		
-	});
 	
 	$('#modalCadastrarClienteSalvar').click(function (e) {
 		
-		var cpf = $('#cpfCadastroCliente').val().trim().replace(/\D/g,'');
 		var nome = $('#nomeCadastroCliente').val().trim();
-		var email = $('#emailCadastroCliente').val().trim();
+		var sobrenome = $('#sobrenomeCadastroCliente').val().trim();
+		var observacao = $('#observacaoCadastroCliente').val().trim();
+		var aniversario = $('#aniversarioCadastroCliente').val().trim().replace(/\D/g,'');
 		var celular = $('#celularCadastroCliente').val().trim().replace(/\D/g,'');
+		var cpf = $('#cpfCadastroCliente').val().trim().replace(/\D/g,'');
+		var email = $('#emailCadastroCliente').val().trim();
 		
-		//exibirMensagem('Dados', 'cpf: ' + cpf + ', nome: ' + nome + ', email: ' + email + ', celular: ' + celular);
+		//exibirMensagem('Dados', 'aniversario: ' + aniversario + ', observacao: ' + observacao + ', sobrenome: ' + sobrenome + ', celular: ' + celular);
+		//return false;
 		
 		if (cpf != "") {
 			if (cpf.length != 11) {
@@ -637,10 +574,7 @@ $(function() {
 			return false;
 		}
 		
-		if (celular == "") {
-			exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">CELULAR</span> não foi preenchido.');			
-			return false;
-		} else {
+		if (celular != "") {
 			if ((celular.length != 10)&&(celular.length != 11)) {				
 				exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">CELULAR</span> deve possuir 10 ou 11 dígitos.');		
 				return false;
@@ -652,10 +586,13 @@ $(function() {
 			type: 'POST',
 			data: {
 				a: 'salvardadosusuario',
-				cpf: cpf,
 				nome: nome,
-				email: email,
-				celular: celular
+				sobrenome: sobrenome,
+				observacao: observacao,
+				aniversario: aniversario,
+				celular: celular,
+				cpf: cpf,
+				email: email				
 			},
 			context: document.body
 			
@@ -672,7 +609,7 @@ $(function() {
 			
 			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (jsonRetorno.resultado == 'SUCESSO') {
-				exibirMensagem('Maria Gata', 'Usuário cadastrado com sucesso!');
+				exibirMensagem('Maria Gata', 'Cliente cadastrado com sucesso!');
 				$('#modalCadastrarCliente').modal('hide');
 				carregarClientes(jsonRetorno.mensagem); //Recarrega a lista de cliente e já seleciona o ID do usuário recém cadastrado.
 			} else {
@@ -683,54 +620,68 @@ $(function() {
 	});
 
 	
-	$('#modalConfirmarAgendamentoConcluir').click(function (e) {
-		
-		//exibirMensagem('teste', IdProfissionalEsmalteria + ' - ' + horarioEsmalteria + ' - ' + IdProfissionalEscovaria + ' - ' + horarioEscovaria);
-		//return false;
-		
-		$.ajax({
-			url: "http://mariagata.com.br/sistema/mariagata.php",
-			type: 'POST',
-			data: {
-				a: 'confirmaragendamento',
-				cliente: cliente,
-				filial: filial,
-				data: dataAgendamento,
-				servicos: servicos,
-				funcionarioEsmalteria: IdProfissionalEsmalteria,
-				horarioEsmalteria: horarioEsmalteria,
-				funcionarioEscovaria: IdProfissionalEscovaria,
-				horarioEscovaria: horarioEscovaria
-			},
-			context: document.body
-			
-		})
-		.always(function() {		
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
-		})
-		.done(function(ret) {
-			
-			//Teste se o objeto retornao é JSON, ou seja, existem dados
-			var jsonRetorno = jQuery.parseJSON(ret);
-			
-			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
-			if (jsonRetorno.resultado == 'SUCESSO') {
-				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
-				$('#textoBoxPesquisar').html("Pesquisar");
-				$('#box-content-pesquisar').css("display", "block");
-				limparPesquisa();
-				$('#modalConfirmarAgendamento').modal('hide');
-				$('#resultadoPesquisa').hide();
-			} else {
-				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
-			}	
-		}); //Fim ajax
-
+	$('#btnAtualizarDataAtendimento').click(function (e) {
+		exibirAtendimentos();
 	});
 	
-	carregarClientes();
-	carregarServicosFilial();
+	function exibirAtendimentos() {
+				
+		var dataAtendimento = $('#dataAtendimento').val();
+		if ((dataAtendimento.length != 10)||(dataAtendimento == "__/__/____")) {
+			exibirMensagem('Maria Gata', 'A data do atendimento não foi informada ou está inválida.');
+			return false;
+		} else {
+			
+			dataAtendimento = dataAtendimento.split("/")[2] + "-" + dataAtendimento.split("/")[1] + "-" + dataAtendimento.split("/")[0];
+			
+			$.ajax({
+				url: "http://mariagata.com.br/sistema/mariagata.php",
+				type: 'POST',
+				data: {
+					a: 'obteratendimentos',
+					dataatendimento: dataAtendimento,
+					filial: 1
+				},
+				context: document.body
+				
+			})
+			.always(function() {		
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+			})
+			.done(function(ret) {
+				
+				var jsonRetorno = jQuery.parseJSON(ret);
+				
+				$('#listaAtendimentos').empty();
+				
+				if (typeof jsonRetorno.resultado === "undefined") {				
+					
+					$.each(jsonRetorno, function( index, value ) {
+						var classe = "";
+						if (value.ATEN_Status == "P") {
+							classe = "comandaPaga";
+						} else {
+							classe = "comandaCancelada";
+						}
+						
+						//ATEN_ID, ATEN_Status, CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
+						$('#listaAtendimentos').append( "<option class='" + classe + "' value='" + value.ATEN_ID + "'>[" + value.ATEN_ID + "] " + value.CLIE_Nome + " (" + value.ASER_ValorCobrado.replace('.',',') + ")</option>");
+						
+					});
+
+				} else {
+					exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
+				}
+				
+			}); //Fim ajax
+			
+		} //Fim teste data
+				
+	} //fim function exibirAtendimentos()
 	
+	exibirAtendimentos();
+	
+		
 });

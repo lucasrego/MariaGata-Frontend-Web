@@ -24,7 +24,7 @@ include 'includes/navegacao/navbar.php';
 					<!-- BEGIN Page Title -->
 					<div class="page-title">
 						<div>
-							<h1><i class="fa fa-book"></i> Consultar Agenda</h1>
+							<h1><i class="fa fa-search"></i> Consultar Agenda</h1>
 							<h4>Agendamentos Maria Gata</h4>
 						</div>
 					</div>
