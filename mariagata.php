@@ -864,7 +864,7 @@ switch ($acao) {
 				select 
 					AGEN_ID as id,
 					color,
-					CONCAT(CLIE_Nome, ' (', GROUP_CONCAT(FUNC_Nome SEPARATOR ' e '), ') [', AGEN_ID, ']') as title,
+					CONCAT('[', CLIE_ID, '] ', CLIE_Nome, ' (', GROUP_CONCAT(FUNC_Nome SEPARATOR ' e '), ') [', AGEN_ID, ']') as title,
 					CONCAT(GROUP_CONCAT(FUNC_Nome SEPARATOR ' e '), ' (', GROUP_CONCAT(DATE_FORMAT(start ,'%H:%i') SEPARATOR ' e '), ')') as funcionarios,
 					min(start) as start,
 					max(end) as end,
@@ -877,6 +877,7 @@ switch ($acao) {
 					(
 						SELECT 
 							a.AGEN_ID,
+							c.CLIE_ID,
 							CASE MOD(c.CLIE_ID, 9) WHEN 0 THEN '#7D9D0B' WHEN 1 THEN '#1EA994' WHEN 2 THEN '#2985F0' WHEN 3 THEN '#EC2D2D' WHEN 4 THEN '#000000' WHEN 5 THEN '#F02972' WHEN 6 THEN '#7C29F0' WHEN 6 THEN '#CEB517' ELSE '#F0830E' END as color,
 							CLIE_Nome,
 							FUNC_Nome,

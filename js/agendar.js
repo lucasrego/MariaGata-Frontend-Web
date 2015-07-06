@@ -58,7 +58,7 @@ $(function() {
 							selected = "selected";
 						}
 					}
-					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + value.CLIE_Nome + ' ' + value.CLIE_Sobrenome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
+					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + "[" + value.CLIE_ID + "] " + value.CLIE_Nome + ' ' + value.CLIE_Sobrenome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
 				}); //Fim each json clientes
 			} else {
 				exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
