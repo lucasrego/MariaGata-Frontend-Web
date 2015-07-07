@@ -303,7 +303,6 @@ include 'includes/navegacao/navbar.php';
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button type="submit" class="btn btn-primary" align="left" id="modalHistoricoClienteSalvar" tabindex="8">Salvar</button>
 						<button class="btn " data-dismiss="modal" id="modalHistoricoClienteFechar" tabindex="9">Fechar</button>
 					</div>
 					
