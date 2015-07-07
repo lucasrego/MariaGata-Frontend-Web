@@ -101,11 +101,12 @@ include 'includes/navegacao/navbar.php';
 										<form action="#" class="form-horizontal">
 											<div class="form-group">
 											   <label class="col-sm-2 col-lg-1 control-label"><h5>Cliente</h5></label>
-											   <div class="col-sm-8 col-lg-9 controls">
+											   <div class="col-sm-7 col-lg-8 controls">
 												  <select data-placeholder="Selecione" class="col-md-12 chosen cmbClientes"></select>
 											   </div>
-											   <div class="col-sm-2 col-lg-2 controls">
+											   <div class="col-sm-3 col-lg-3 controls">
 													<a id="btnNovoCliente" class="btn btn-sm btn-primary" href="#"><i class="fa fa-plus"></i> Novo</a>
+													<a id="btnEditarCliente" class="btn btn-sm btn-inverse" href="#"><i class="fa fa-pencil"></i> Editar</a>
 												</div>		
 											</div>
 											
@@ -299,6 +300,70 @@ include 'includes/navegacao/navbar.php';
 		</div>
 		<!-- FIM MODAL CADASTRAR CLIENTE -->
 		
+		
+		<!-- MODAL EDITAR CLIENTE -->
+		<div id="modalEditarCliente" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h3 id="modalEditarClienteTitulo">Editar Cliente</h3>
+					</div>
+					<form action="#" id="modalEditarClienteForm" method="post" class="form-horizontal" id="validation-form">
+						<input type="hidden" id="IDEditarCliente" placeholder="" class="form-control">
+						<div class="modal-body">						
+							<div class="form-group">
+								<label for="nomeEditarCliente" class="col-xs-2 col-lg-2 control-label">Nome</label>
+								<div class="col-sm-4 col-lg-4 controls">
+									<input type="text" id="nomeEditarCliente" placeholder="" class="form-control" tabindex="1">
+								</div>
+								<label for="sobrenomeEditarCliente" class="col-xs-2 col-lg-2 control-label">Sobrenome</label>
+								<div class="col-sm-4 col-lg-4 controls">
+									<input type="text" id="sobrenomeEditarCliente" placeholder="" class="form-control" tabindex="2">
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="observacaoEditarCliente" class="col-xs-2 col-lg-2 control-label">Obs</label>
+								<div class="col-sm-4 col-lg-4 controls">
+									<input type="text" id="observacaoEditarCliente" placeholder="" class="form-control" tabindex="3">
+								</div>
+								<label for="aniversarioEditarCliente" class="col-xs-2 col-lg-2 control-label">Aniversário</label>
+								<div class="col-sm-4 col-lg-4 controls">
+									<input type="text" id="aniversarioEditarCliente" data-mask="99/99" placeholder="" class="form-control" tabindex="4">
+									<span class="help-inline">Ex: 08/11</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-2 col-lg-2 control-label">Celular</label>
+								<div class="col-sm-4 col-lg-4 controls">
+									<input class="form-control col-md-5" type="text" id="celularEditarCliente" data-mask="(99) 9999-9999" placeholder="" tabindex="5">
+									<span class="help-inline">(99) 9999-9999</span>
+								</div>
+								<label class="col-sm-2 col-lg-2 control-label">CPF</label>
+								<div class="col-sm-4 col-lg-4 controls">
+									<input class="form-control col-md-5" type="text" id="cpfEditarCliente" data-mask="999.999.999-99" placeholder="" tabindex="6">
+									<span class="help-inline">999.999.999-99</span>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 col-lg-2 control-label">E-mail</label>
+								<div class="col-sm-9 col-lg-10 controls">
+									<div class="input-group">
+										<span class="input-group-addon">@</span>
+										<input class="form-control" type="text" id="emailEditarCliente" placeholder="E-mail" tabindex="7" />
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="submit" class="btn btn-primary" align="left" id="modalEditarClienteSalvar" tabindex="8">Salvar</button>
+							<button class="btn " data-dismiss="modal" id="modalEditarClienteFechar" tabindex="9">Fechar</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- FIM MODAL EDITAR CLIENTE -->
 		
 		<?php include 'includes/navegacao/rodape.php'; ?>
         

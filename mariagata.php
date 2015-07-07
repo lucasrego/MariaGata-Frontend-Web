@@ -163,7 +163,7 @@ switch ($acao) {
 		
 		$cliente = $_POST["cliente"];
 		
-		if ($db->Query("select CLIE_CPF, CLIE_Nome, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario, CLIE_Email, CLIE_Celular, CLIE_DataCadastro, CLIE_DataUltimaAtualizacaoDados, CLIE_ValeAcumulado from cliente where CLIE_ID = " . $cliente)) {
+		if ($db->Query("select CLIE_ID, CLIE_CPF, CLIE_Nome, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario, CLIE_Email, CLIE_Celular, CLIE_DataCadastro, CLIE_DataUltimaAtualizacaoDados, CLIE_ValeAcumulado from cliente where CLIE_ID = " . $cliente)) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				echo $db->GetJSON();
 			} else {
@@ -637,42 +637,13 @@ switch ($acao) {
 				}
 			}
 			
-			//Se houve vale futuro, obtem o vale atual do cliente para soma o novo vale
-			if (($valeFuturo != "")and((float)$valeFuturo != "0")) {
-				if ($db->Query("SELECT CLIE_ValeAcumulado FROM cliente where CLIE_ID = '" . $cliente . "'")) {
-					if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
-						
-						$linha = $db->Row(0);
-						$valeAtual = $linha->CLIE_ValeAcumulado;
-						
-						if ((float)$valeFuturo <= (float)$valeAtual) {
-							$novoVale = (float)$valeFuturo - (float)$valeAtual;
-						} else {
-							$novoVale = (float)$valeAtual - (float)$valeFuturo;
-						}
-						
-						$update_cliente["CLIE_ValeAcumulado"]  = MySQL::SQLValue($novoVale);
-						if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
-							echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos altualizar o vale do cliente." }';
-							exit;
-						}
-					} else {
-						echo '{ "resultado": "ERRO", "mensagem": "Cliente [' . $cliente . '[ não encontrado."}';
-						exit;
-					}
-				} else {
-					echo '{ "resultado": "ERRO", "mensagem": "Falha ao obter Vale atual do cliente." }';
-					exit;
-				}
-			} else {
-				//Atualiza vale para 0,00, pois foi utilizado ou não existia
-				$update_cliente["CLIE_ValeAcumulado"]  = MySQL::SQLValue("0");
-				if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
-					echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos altualizar o vale do cliente [0]." }';
-					exit;
-				}
-				
-			}
+			//Atualiza vale do cliente (já foi calculado pela tela)
+			$update_cliente["CLIE_ValeAcumulado"]  = MySQL::SQLValue($valeFuturo);
+			if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos altualizar o vale do cliente." }';
+				exit;
+			}			
+			
 			
 			$db->TransactionEnd(); //Commit
 			echo '{ "resultado": "SUCESSO", "mensagem": "' . $resultado_atendimento . '"}';
@@ -683,6 +654,67 @@ switch ($acao) {
 		break;
 		
 	
+	
+	case "editardadosusuario":
+		
+		$cliente = trim($_POST["cliente"]);
+		$nome = trim($_POST["nome"]);
+		$sobrenome = trim($_POST["sobrenome"]);
+		$observacao = trim($_POST["observacao"]);
+		$aniversario = trim($_POST["aniversario"]);
+		$cpf = trim($_POST["cpf"]);
+		$email = trim($_POST["email"]);
+		$celular = trim($_POST["celular"]);
+		
+		if ($cpf != "") {
+			// Verifica se o CPF ou CNPJ é válido
+			$cpf_cnpj = new ValidaCPFCNPJ($cpf);
+			if ( $cpf_cnpj->valida() == false) {
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Parece que o CPF informado não é válido (' . $cpf . ')." }';
+				exit;
+			}
+		}
+	
+		if ($email != "") {
+			if ($email != filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Parece que o e-mail informado não é válido (' . $email . ')." }';
+				exit;
+			}
+		}
+		
+		if (strlen($nome) <= 1) {
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Revise o nome informado." }';
+			exit;
+		}
+		
+		if ($celular != "") {
+			if ((strlen($celular) != 10)&&(strlen($celular) != 11)) {
+				echo '{ "resultado": "ERRO", "mensagem": "Ops! Revise o celular informado. Altere seu cadastro e tente novamente. Se ainda tiver problemas, nos falamos pelo Whatsapp (71) 8879-1014, ok? ;)" }';
+				exit;
+			}
+		}
+		
+		//UPDATE NOS DADOS DO CLIENTE
+		$update_cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
+		$update_cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
+		$update_cliente["CLIE_Observacao"]  = MySQL::SQLValue($observacao);
+		$update_cliente["CLIE_Aniversario"]  = MySQL::SQLValue($aniversario);
+		$update_cliente["CLIE_Celular"]  = MySQL::SQLValue($celular);
+		$update_cliente["CLIE_Email"]  = MySQL::SQLValue($email);
+		$update_cliente["CLIE_DataUltimaAtualizacaoDados"]  = MySQL::SQLValue($lsDataHoraAtual);
+		if (! $db->UpdateRows("cliente", $update_cliente, array("CLIE_ID" => $cliente))) {
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos salvar os dados [7]." }';
+			exit;
+		}
+		
+		$db->TransactionEnd(); //Commit
+		
+		echo '{ "resultado": "SUCESSO", "mensagem": "' . $cliente . '"}';
+		exit;
+		
+		break;
+		
+		
 	case "salvardadosusuario":
 		
 		//http://mariagata.com.br/sistema/mariagata.php?a=salvardadosusuario&nome=Lucas&cpf=80941818500&email=lucasrego@gmail.com&celular=7188145976&sobrenome=Rego&observacao=testeobs&aniversario=0607
@@ -913,7 +945,8 @@ switch ($acao) {
 			echo $db->GetJSON();
 			//Propriedades do evento: color,title (Nome do espaço), start, end, dataEvento, horaInicioPrevisto, idReserva, dataCriacao, nomeReservadoPara
 		} else {
-			echo "erro";
+			echo '{ "resultado": "ERRO", "mensagem": "Não foi possível obter os agendamentos da filial: ' + $filial + '"}';
+			exit;
 		}
 		
 		break;

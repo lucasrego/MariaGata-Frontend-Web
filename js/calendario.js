@@ -88,7 +88,7 @@ $(function() {
 			},
 			events: function(start, end, timezone, callback) {
 				$.ajax({
-					url: 'obterURLBackend()?a=obteragendamentos&filial=1',
+					url: urlBackend,
 					dataType: 'json',
 					method: 'POST',
 					data: {

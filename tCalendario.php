@@ -144,7 +144,13 @@ include 'includes/navegacao/navbar.php';
 							
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-danger" align="left" id="modalConsultarAgendamentoCancelar">Cancelar Agendamento</button>
+							<div class="btn-group">
+								<a href="#" data-toggle="dropdown" class="btn btn-danger dropdown-toggle">Cancelar <span class="caret"></span></a>
+								<ul class="dropdown-menu">
+									<li><a href="#" id="modalConsultarAgendamentoCancelar">Confirmar Cancelamento</a></li>									
+								</ul>
+							</div>
+							<!--<button type="button" class="btn btn-danger" align="left" id="modalConsultarAgendamentoCancelar">Cancelar Agendamento</button>-->
 							<button class="btn " data-dismiss="modal" id="modalConsultarAgendamentoFechar">Fechar</button>		
 						</div>
 					</form>
