@@ -138,7 +138,45 @@ switch ($acao) {
 		
 		break;
 
-
+	
+	
+	case "obterhistoricoatendimentoscliente":
+	
+		//http://mariagata.com.br/sistema/mariagata.php?a=obterhistoricoatendimentoscliente&cliente=1
+		
+		$cliente = $_POST["cliente"];
+		
+		$sql_query = "SELECT 
+							a.ATEN_ID, DATE_FORMAT(ATEN_DataAtendimento,'%d/%m/%Y') as ATEN_DataAtendimento, ATEN_Status, a.FILI_ID, a.CLIE_ID, c.CLIE_Nome, c.CLIE_Sobrenome, a.USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
+						FROM 
+							atendimento a,
+							usuario u,
+							cliente c,
+							atendimento_servicos ats
+						where
+							a.CLIE_ID = " . $cliente . "
+							and a.USUA_ID = u.USUA_ID
+							and a.CLIE_ID = c.CLIE_ID
+							and a.ATEN_ID = ats.ATEN_ID							
+						group by a.ATEN_ID
+						order by a.ATEN_ID desc
+						";
+		
+		if ($db->Query($sql_query)) {
+			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+				echo $db->GetJSON();
+			} else {
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Nenhum atendimento encontrado para o cliente: ' . $cliente . '"}';
+				exit;
+			}
+		} else {
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos obter o histórico de atendimento do cliente: ' . $cliente . '"}';
+			exit;			
+		}
+		
+		break;
+		
+		
 	case "obterclientes":	
 		
 		//http://mariagata.com.br/sistema/mariagata.php?a=obterclientes

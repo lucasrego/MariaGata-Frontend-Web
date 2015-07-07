@@ -61,12 +61,12 @@ include 'includes/navegacao/navbar.php';
 									
 									<form action="#" class="form-horizontal">
 										<div class="form-group">
-											<div class="col-sm-12 col-lg-12 controls">
+											<div class="col-sm-12 col-lg-12 col-xs-12 col-md-12 controls">
 												<label for="dataAtendimento" class="col-sm-2 col-xs-2 col-lg-2 control-label"><b>Data</b></label>
-												<div class="col-sm-7 col-sm-7 col-lg-7 controls">
+												<div class="col-sm-7 col-xs-7 col-lg-7 controls">
 													<input type="text" id="dataAtendimento" value="<?php echo date("d/m/Y"); ?>" data-mask="99/99/9999" placeholder="" class="form-control" tabindex="0">
 												</div>
-												<div class="col-sm-3 col-lg-3 controls">
+												<div class="col-sm-3 col-xs-3 col-lg-3 controls">
 													<a id="btnAtualizarDataAtendimento" class="btn btn-sm btn-inverse" href="#"><i class="fa fa-refresh"></i></a>
 												</div>
 											</div>
@@ -106,7 +106,8 @@ include 'includes/navegacao/navbar.php';
 											   </div>
 											   <div class="col-sm-3 col-lg-3 controls">
 													<a id="btnNovoCliente" class="btn btn-sm btn-primary" href="#"><i class="fa fa-plus"></i> Novo</a>
-													<a id="btnEditarCliente" class="btn btn-sm btn-inverse" href="#"><i class="fa fa-pencil"></i> Editar</a>
+													<a id="btnEditarCliente" class="btn btn-sm btn-inverse show-tooltip" title="Editar Cliente" href="#"><i class="fa fa-pencil"></i></a>
+													<a id="btnHistoricoCliente" class="btn btn-sm btn-inverse show-tooltip" title="Histórico de Atendimentos"  href="#"><i class="fa fa-book"></i></a>
 												</div>		
 											</div>
 											
@@ -116,7 +117,7 @@ include 'includes/navegacao/navbar.php';
 										<button class="close" data-dismiss="alert">&times;</button>
 										<span id="alertaClienteConteudo"></span>
 									</div>
-									<table id="tabelaServicos" class="table table-hover">
+									<table id="tabelaServicos" class="table table-hover table-condensed">
 										<thead>
 											<tr>
 												<th> Serviço/Produto</th>
@@ -125,31 +126,7 @@ include 'includes/navegacao/navbar.php';
 												<th> </th>
 											</tr>
 										</thead>
-										<tbody id="tbodyTabelaServicos">
-											<!--
-											<tr>
-												<td>
-													<select data-placeholder="Selecione" class="col-md-12 chosen cmbServico">
-													</select>
-												</td>
-												<td>
-													<select data-placeholder="Selecione" class="col-md-12 chosen cmbFuncionario">
-													</select>
-												</td>
-												<td>
-													<div class="col-sm-9 col-lg-10 controls">
-														<input type="text" id="valorCobrado" placeholder="" class="form-control campoMoeda campoValorTabelaServicos tblValorCobrado">
-													</div>
-												</td>
-												<td>
-													<div class="btn-group">
-														<a class="btn btn-sm btn-danger show-tooltip btnLimparLinha" title="Excluir" href="#"><i class="fa fa-trash-o"></i></a>
-														<a class="btn btn-sm btn-primary show-tooltip btnNovaLinha" title="Incluir Serviço" href="#"><i class="fa fa-plus-circle"></i></a>
-													</div>
-												</td>
-											</tr>
-											-->
-										</tbody>
+										<tbody id="tbodyTabelaServicos"></tbody>
 									</table>
 								</div>
 							</div>
@@ -299,7 +276,41 @@ include 'includes/navegacao/navbar.php';
 			</div>
 		</div>
 		<!-- FIM MODAL CADASTRAR CLIENTE -->
-		
+				
+		<!-- MODAL HISTÓRICO DE ATENDIMENTO DO CLIENTE -->
+		<div id="modalHistoricoCliente" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h3 id="modalHistoricoClienteTitulo">Historico Cliente</h3>
+					</div>
+					<div class="modal-body">						
+						<div class="row">
+							<div class="col-md-12">
+								<table class="table table-condensed">
+									<thead>
+										<tr>
+											<th>#</th>
+											<th>Data</th>
+											<th>Status</th>
+											<th>Valor</th>
+										</tr>
+									</thead>
+									<tbody id="tbodyTabelaHistoricoAtendimentosCliente"></tbody>									
+								</table>									
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary" align="left" id="modalHistoricoClienteSalvar" tabindex="8">Salvar</button>
+						<button class="btn " data-dismiss="modal" id="modalHistoricoClienteFechar" tabindex="9">Fechar</button>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+		<!-- FIM MODAL HISTÓRICO DE ATENDIMENTO DO CLIENTE -->
 		
 		<!-- MODAL EDITAR CLIENTE -->
 		<div id="modalEditarCliente" class="modal fade">
@@ -307,7 +318,7 @@ include 'includes/navegacao/navbar.php';
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-						<h3 id="modalEditarClienteTitulo">Editar Cliente</h3>
+						<h3 id="modalEditarClienteTitulo">Editar Dados Cliente</h3>
 					</div>
 					<form action="#" id="modalEditarClienteForm" method="post" class="form-horizontal" id="validation-form">
 						<input type="hidden" id="IDEditarCliente" placeholder="" class="form-control">
@@ -364,6 +375,7 @@ include 'includes/navegacao/navbar.php';
 			</div>
 		</div>
 		<!-- FIM MODAL EDITAR CLIENTE -->
+		
 		
 		<?php include 'includes/navegacao/rodape.php'; ?>
         

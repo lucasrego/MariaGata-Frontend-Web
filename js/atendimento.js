@@ -221,6 +221,84 @@ $(function() {
 		$('#modalCadastrarCliente').modal('show');
 	});
 	
+	
+	$('#btnHistoricoCliente').click(function (e) {
+		
+		var cliente = $('.cmbClientes').val();
+		if (cliente == "") {
+			exibirMensagem('Maria Gata', 'Selecione um Cliente.');
+			return false;
+		} else {
+			
+			//Obtem histórico de atendimentos do cliente
+			$.ajax({
+				url: urlBackend,
+				type: 'POST',
+				data: {
+					a: 'obterhistoricoatendimentoscliente',
+					cliente: cliente
+				},
+				context: document.body
+				
+			})
+			.always(function() {		
+			})
+			.fail(function(jqXHR, textStatus, errorThrown) {
+				exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+			})
+			.done(function(ret) {
+				
+				//Teste se o objeto retornao é JSON, ou seja, existem dados
+				var jsonRetorno = jQuery.parseJSON(ret);
+				
+				if (typeof jsonRetorno.resultado === "undefined") {
+					
+					$('#tbodyTabelaHistoricoAtendimentosCliente').empty();
+					var lsTBody = "";
+		
+					$.each(jsonRetorno, function( index, value ) {
+						
+						//a.ATEN_ID, ATEN_DataAtendimento, ATEN_Status, a.FILI_ID, a.CLIE_ID, c.CLIE_Nome, c.CLIE_Sobrenome, 
+						//a.USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
+												
+						lsTBody += "<tr id='" + value.ATEN_ID + "'>";
+						lsTBody += "	<td>";
+						lsTBody += value.ATEN_ID;
+						lsTBody += "	</td>";
+						lsTBody += "	<td>";
+						lsTBody += value.ATEN_DataAtendimento;
+						lsTBody += "	</td>";
+						lsTBody += "	<td>";
+						lsTBody += value.ATEN_Status;
+						lsTBody += "	</td>";
+						lsTBody += "	<td>";
+						lsTBody += value.ASER_ValorCobrado;
+						lsTBody += "	</td>";
+						lsTBody += "	<td>";
+						lsTBody += "		<div class='btn-group'>";
+						lsTBody += "			<a class='btn btn-sm btn-primary show-tooltip' title='Detalhar Atendimento' href='#'><i class='fa fa-book'></i></a>";
+						lsTBody += "		</div>";
+						lsTBody += "	</td>";
+						lsTBody += "</tr>";
+						
+						$('#tbodyTabelaHistoricoAtendimentosCliente').append(lsTBody);	
+						
+					}); //Fim each json
+					
+					$('#modalHistoricoCliente').modal('show');
+					
+				} else {
+					exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
+				} //Fim teste jsonRetorno.resultado
+				
+				
+			}); //Fim ajax
+			
+		}		
+		
+	});
+	
+	
 	$('#btnEditarCliente').click(function (e) {
 		
 		//Limpar campos
