@@ -255,12 +255,25 @@ $(function() {
 					
 					$('#tbodyTabelaHistoricoAtendimentosCliente').empty();
 					var lsTBody = "";
-		
+					var textoServicos = "";
+					
 					$.each(jsonRetorno, function( index, value ) {
 						
-						//a.ATEN_ID, ATEN_DataAtendimento, ATEN_Status, a.FILI_ID, a.CLIE_ID, c.CLIE_Nome, c.CLIE_Sobrenome, 
-						//a.USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
+						//ATEN_ID, ATEN_DataAtendimento, ATEN_Status, FILI_ID, 
+						//CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, ASER_ValorCobrado,
+						//servicos (Separados por PIPE), precos (Separados por PIPE), funcionarios (Separados por PIPE)
 												
+						var arrayServicos = value.servicos.split("|");
+						var arrayPrecos = value.precos.split("|");
+						var arrayFuncionarios = value.funcionarios.split("|");						
+						textoServicos = "";
+						
+						$.each(arrayServicos, function( index, value ) {
+							textoServicos += arrayServicos[index] + " (" + arrayFuncionarios[index] + " / " + arrayPrecos[index] + "), ";
+						});					
+						textoServicos = textoServicos.substring(0,(textoServicos.length - 2)).toString();
+		
+		
 						lsTBody += "<tr id='" + value.ATEN_ID + "'>";
 						lsTBody += "	<td>";
 						lsTBody += value.ATEN_ID;
@@ -269,22 +282,17 @@ $(function() {
 						lsTBody += value.ATEN_DataAtendimento;
 						lsTBody += "	</td>";
 						lsTBody += "	<td>";
-						lsTBody += value.ATEN_Status;
-						lsTBody += "	</td>";
-						lsTBody += "	<td>";
 						lsTBody += value.ASER_ValorCobrado;
 						lsTBody += "	</td>";
 						lsTBody += "	<td>";
-						lsTBody += "		<div class='btn-group'>";
-						lsTBody += "			<a class='btn btn-sm btn-primary show-tooltip' title='Detalhar Atendimento' href='#'><i class='fa fa-book'></i></a>";
-						lsTBody += "		</div>";
+						lsTBody += textoServicos;
 						lsTBody += "	</td>";
 						lsTBody += "</tr>";
 						
-						$('#tbodyTabelaHistoricoAtendimentosCliente').append(lsTBody);	
-						
 					}); //Fim each json
 					
+					$('#tbodyTabelaHistoricoAtendimentosCliente').append(lsTBody);
+					$('.popoverServicos').addClass('show-popover');					
 					$('#modalHistoricoCliente').modal('show');
 					
 				} else {

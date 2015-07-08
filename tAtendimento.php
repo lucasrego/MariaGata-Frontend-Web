@@ -283,18 +283,18 @@ include 'includes/navegacao/navbar.php';
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-						<h3 id="modalHistoricoClienteTitulo">Historico Cliente</h3>
+						<h3 id="modalHistoricoClienteTitulo">Histórico do Cliente</h3>
 					</div>
 					<div class="modal-body">						
 						<div class="row">
-							<div class="col-md-12">
+							<div class="col-md-12 slimScroll" style="height: 70px">
 								<table class="table table-condensed">
 									<thead>
 										<tr>
 											<th>#</th>
 											<th>Data</th>
-											<th>Status</th>
-											<th>Valor</th>
+											<th>Total</th>
+											<th>Serviços / Produtos</th>
 										</tr>
 									</thead>
 									<tbody id="tbodyTabelaHistoricoAtendimentosCliente"></tbody>									
@@ -384,6 +384,7 @@ include 'includes/navegacao/navbar.php';
 		<script src="assets/bootstrap/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="assets/chosen-bootstrap/chosen.jquery.min.js"></script>
         <script type="text/javascript" src="assets/bootstrap-inputmask/bootstrap-inputmask.min.js"></script>
+        <script src="assets/jquery-slimscroll/jquery.slimscroll.min.js"></script>
         <script src="assets/gritter/js/jquery.gritter.min.js"></script>
 		<script src="assets/jquery-priceformat/jquery.price_format.2.0.min.js"></script>
 		

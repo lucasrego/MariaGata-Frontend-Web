@@ -147,17 +147,31 @@ switch ($acao) {
 		$cliente = $_POST["cliente"];
 		
 		$sql_query = "SELECT 
-							a.ATEN_ID, DATE_FORMAT(ATEN_DataAtendimento,'%d/%m/%Y') as ATEN_DataAtendimento, ATEN_Status, a.FILI_ID, a.CLIE_ID, c.CLIE_Nome, c.CLIE_Sobrenome, a.USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
+							ATEN_ID, DATE_FORMAT(ATEN_DataAtendimento,'%d/%m/%y') as ATEN_DataAtendimento, ATEN_Status, FILI_ID, 
+							CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, REPLACE(CAST(SUM(ASER_ValorCobrado) as CHAR), '.', ',') as ASER_ValorCobrado,
+							GROUP_CONCAT(SERV_Nome SEPARATOR '|') as servicos, GROUP_CONCAT(REPLACE(ASER_ValorCobrado, '.', ',') SEPARATOR '|') as precos,
+							GROUP_CONCAT(FUNC_Nome SEPARATOR '|') as funcionarios
+						FROM
+						(
+						SELECT 
+							a.ATEN_ID, ATEN_DataAtendimento, ATEN_Status, a.FILI_ID, FUNC_Nome,
+							a.CLIE_ID, c.CLIE_Nome, c.CLIE_Sobrenome, a.USUA_ID, USUA_Nome, SERV_Nome, ASER_ValorCobrado
 						FROM 
 							atendimento a,
 							usuario u,
 							cliente c,
-							atendimento_servicos ats
+							atendimento_servicos ats,
+							servico s,
+							funcionario f
 						where
 							a.CLIE_ID = " . $cliente . "
 							and a.USUA_ID = u.USUA_ID
 							and a.CLIE_ID = c.CLIE_ID
-							and a.ATEN_ID = ats.ATEN_ID							
+							and a.ATEN_ID = ats.ATEN_ID
+							and ats.SERV_ID = s.SERV_ID
+							and ats.FUNC_ID = f.FUNC_ID
+						order by a.ATEN_ID desc
+						) a
 						group by a.ATEN_ID
 						order by a.ATEN_ID desc
 						";
