@@ -10,11 +10,11 @@
         <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
         <!--base css styles-->
-        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+		<link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
         <link rel="stylesheet" href="assets/font-awesome/css/font-awesome.min.css">
-
-        <!--page specific css styles-->
-
+		<link rel="stylesheet" href="assets/gritter/css/jquery.gritter.css">
+		
+	
         <!--flaty css styles-->
         <link rel="stylesheet" href="css/flaty.css">
         <link rel="stylesheet" href="css/flaty-responsive.css">
@@ -32,17 +32,17 @@
                 <hr/>
                 <div class="form-group">
                     <div class="controls">
-                        <input type="text" placeholder="Usuário" class="form-control" />
+                        <input type="text" id="usuario" placeholder="Usuário" class="form-control" />
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="controls">
-                        <input type="password" placeholder="Senha" class="form-control" />
+                        <input type="password" id="senha" placeholder="Senha" class="form-control" />
                     </div>
                 </div>
                 <div class="form-group">
                     <div class="controls">
-                        <button type="submit" class="btn btn-primary form-control">Acessar</button>
+                        <button type="button" id="btnLogarSistema" class="btn btn-primary form-control">Acessar</button>
                     </div>
                 </div>
                 <hr/>
@@ -59,9 +59,12 @@
         <script src="assets/jquery/jquery-2.1.4.min.js"></script>
         <script src="assets/bootstrap/js/bootstrap.min.js"></script>
 		<script src="assets/gritter/js/jquery.gritter.min.js"></script>
-		
+		<script src="assets/jquery-redirect/jquery.redirect.js"></script>
+
 		 <!--flaty scripts-->
 		<script src="js/base.js"></script>
+		<script src="js/login.js"></script>
+		<script src="js/flaty.js"></script>
 		
     </body>
 </html>

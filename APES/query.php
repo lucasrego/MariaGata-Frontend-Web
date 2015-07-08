@@ -7,7 +7,8 @@ date_default_timezone_set('America/Recife');
 $lsDataHoraAtual = date("Y-m-d H:i:s");
 $lsDataAtual = date("Y-m-d");
 
-if ($db->Query("select * from funcionario_servico where FUNC_ID = 1 order by SERV_ID")) {
+//if ($db->Query("select * from funcionario_servico where FUNC_ID = 1 order by SERV_ID")) {
+if ($db->Query("select * from usuario")) {
 	if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 		echo $db->GetJSON();
 	} else {

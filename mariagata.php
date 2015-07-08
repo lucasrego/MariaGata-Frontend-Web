@@ -98,6 +98,9 @@ switch ($acao) {
 							and USUA_Senha = '" . $senha . "'
 						";
 		
+		//echo '{ "resultado": "ERRO", "mensagem": "Dados: ' . $usuario . ', senha: ' . $senha . '"}';
+		//exit;
+			
 		if ($db->Query($sql_query)) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				
@@ -108,13 +111,19 @@ switch ($acao) {
 				$_SESSION['usuarionome'] = $linha->USUA_Nome;
 				$_SESSION['usuarioperfil'] = $linha->USUA_Perfil;
 				
+				//header('Status: 200');
+				//header('Location: index.php');
+				
+				echo '{ "login": "SUCESSO"}';
+				exit;
+				
 			} else {
 				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Usuário ou senha inválidos."}';
 				exit;
 			}
 		} else {
 			echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico ao realizar o acesso."}';
-			exit;			
+			exit;
 		}
 		
 		
