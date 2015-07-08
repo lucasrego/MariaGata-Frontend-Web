@@ -84,6 +84,42 @@ switch ($acao) {
 		
 		break;
 		
+	case "logarsistema":	
+		
+		$usuario = $_POST["usuario"];
+		$senha = $_POST["senha"];
+		
+		$sql_query = "SELECT 
+							USUA_ID, USUA_Nome, USUA_Perfil
+						FROM 
+							usuario
+						where
+							USUA_Login = '" . $usuario . "'
+							and USUA_Senha = '" . $senha . "'
+						";
+		
+		if ($db->Query($sql_query)) {
+			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+				
+				$linha = $db->Row(0);
+									
+				session_start();
+				$_SESSION['usuario'] = $linha->USUA_ID;
+				$_SESSION['usuarionome'] = $linha->USUA_Nome;
+				$_SESSION['usuarioperfil'] = $linha->USUA_Perfil;
+				
+			} else {
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Usuário ou senha inválidos."}';
+				exit;
+			}
+		} else {
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico ao realizar o acesso."}';
+			exit;			
+		}
+		
+		
+		break;
+		
 		
 	case "obterservicosfilial":	
 		
