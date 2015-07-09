@@ -227,7 +227,6 @@ $(function() {
 		var valeFuturo = $('#valeFuturo').html();
 		
 		var filial = 1;
-		var usuario = 1;
 		
 		var linhasServicos = $('.linhaTabelaServicos');
 		
@@ -291,7 +290,6 @@ $(function() {
 				dataAtendimento: dataAtendimento,
 				filial: filial,
 				cliente: cliente,
-				usuario: usuario,
 				dadosServicosProdutos: dadosServicosProdutos,
 				totalServicos: totalServicos,
 				valeExistente: valeExistente,

@@ -23,7 +23,7 @@
 		</li>
 		
 		<li>
-			<a href="index.php">
+			<a href="agendar.php">
 				<i class="fa fa-clock-o"></i>
 				<span>Agendar</span>
 			</a>

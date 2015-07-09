@@ -11,18 +11,22 @@
 	</a>
 
 	<!-- BEGIN Navbar Buttons -->
-	<!--
+	
 	<ul class="nav flaty-nav pull-right">
 
 		<li class="user-profile">
 			<a data-toggle="dropdown" href="#" class="user-menu dropdown-toggle">
-				<img class="nav-user-photo" src="img/avatar/avatar1.jpg" alt="Penny's Photo" />
+				<!--<img class="nav-user-photo" src="" alt="" />-->
 				<span class="hhh" id="user_info">
-					Penny
+					<?php
+						 session_start();
+						echo $_SESSION['usuarionome'];
+					?>
 				</span>
-				<i class="fa fa-caret-down"></i>
+				<!--<i class="fa fa-caret-down"></i>-->
 			</a>
-
+			
+			<!--
 			<ul class="dropdown-menu dropdown-navbar" id="user_menu">
 				<li>
 					<a href="#">
@@ -47,9 +51,10 @@
 					</a>
 				</li>
 			</ul>
+			-->
 		</li>
 	</ul>
-	-->
+	
 	
 	<!-- END Navbar Buttons -->
 </div>

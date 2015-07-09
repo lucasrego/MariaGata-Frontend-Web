@@ -105,14 +105,14 @@ switch ($acao) {
 			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 				
 				$linha = $db->Row(0);
-									
+				
 				session_start();
 				$_SESSION['usuario'] = $linha->USUA_ID;
 				$_SESSION['usuarionome'] = $linha->USUA_Nome;
 				$_SESSION['usuarioperfil'] = $linha->USUA_Perfil;
 				
 				//header('Status: 200');
-				//header('Location: index.php');
+				//header('Location: agendar.php');
 				
 				echo '{ "login": "SUCESSO"}';
 				exit;
@@ -614,10 +614,12 @@ switch ($acao) {
 		
 		//http://mariagata.com.br/sistema/mariagata.php?a=salvaratendimento&dataAtendimento=2015-07-05&filial=1&cliente=1&usuario=1&dadosServicosProdutos=1|1|39,90&totalServicos=54,90&valeFuturo=&dinheiro=39,90&debito=10,00&credito=&valeExistente=5,00
 		
+		session_start();
+		$usuario = $_SESSION['usuario'];
+		
 		$dataAtendimento = trim($_POST["dataAtendimento"]);
 		$filial = trim($_POST["filial"]);
 		$cliente = trim($_POST["cliente"]);
-		$usuario = trim($_POST["usuario"]);
 		$dadosServicosProdutos = trim($_POST["dadosServicosProdutos"]);
 		$totalServicos = str_replace(",", ".", str_replace(".", "", trim($_POST["totalServicos"])));
 		$valeExistente = str_replace(",", ".", str_replace(".", "", trim($_POST["valeExistente"])));

@@ -35,7 +35,8 @@ $(function() {
 				
 				if (typeof jsonRetorno.resultado === "undefined") {
 					
-					$.redirect("index.php");
+					//$.redirect("agendar.php");
+					window.location = "agendar.php";
 										
 				} else {
 					exibirMensagem('Maria Gata', jsonRetorno.mensagem);
