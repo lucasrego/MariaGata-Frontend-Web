@@ -87,13 +87,13 @@ include 'includes/navegacao/navbar.php';
 												
 												<div class="form-group">
 													<label class="col-sm-3 col-lg-2 control-label">Cliente</label>
-													<div class="col-sm-6 col-lg-7 controls">
-														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre um novo" tabindex="6">
-															
-														</select>
+													<div class="col-sm-5 col-lg-6 controls">
+														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre um novo" tabindex="6"></select>
 													</div>
-													<div class="col-sm-2 col-lg-2">
-													   <button type="submit" id="btnCadastrarCliente" class="btn btn-inverse btn-smbtn-sm"><i class="fa fa-check"></i> Novo</button>
+													<div class="col-sm-4 col-lg-4">
+														<button type="submit" id="btnNovoCliente" class="btn btn-primary btn-sm"><i class="fa fa-check"></i> Novo</button>
+														<a id="btnEditarCliente" class="btn btn-sm btn-inverse show-tooltip" title="Editar Cliente" href="#"><i class="fa fa-pencil"></i></a>
+														<a id="btnHistoricoCliente" class="btn btn-sm btn-inverse show-tooltip" title="Histórico de Atendimentos"  href="#"><i class="fa fa-book"></i></a>
 													</div>
 												</div>											
 											  <!-- END Left Side -->
@@ -226,69 +226,6 @@ include 'includes/navegacao/navbar.php';
         </div>
         <!-- END Container -->
 		
-		<!-- MODAL CADASTRAR CLIENTE -->
-		<div id="modalCadastrarCliente" class="modal fade">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-						<h3 id="modalCadastrarClienteTitulo">Novo Cliente</h3>
-					</div>
-					<form action="#" id="modalCadastrarClienteForm" method="post" class="form-horizontal" id="validation-form">
-						<div class="modal-body">						
-							<div class="form-group">
-								<label for="nomeCadastroCliente" class="col-xs-2 col-lg-2 control-label">Nome</label>
-								<div class="col-sm-4 col-lg-4 controls">
-									<input type="text" id="nomeCadastroCliente" placeholder="" class="form-control" tabindex="1">
-								</div>
-								<label for="sobrenomeCadastroCliente" class="col-xs-2 col-lg-2 control-label">Sobrenome</label>
-								<div class="col-sm-4 col-lg-4 controls">
-									<input type="text" id="sobrenomeCadastroCliente" placeholder="" class="form-control" tabindex="2">
-								</div>
-							</div>
-							<div class="form-group">
-								<label for="observacaoCadastroCliente" class="col-xs-2 col-lg-2 control-label">Obs</label>
-								<div class="col-sm-4 col-lg-4 controls">
-									<input type="text" id="observacaoCadastroCliente" placeholder="" class="form-control" tabindex="3">
-								</div>
-								<label for="aniversarioCadastroCliente" class="col-xs-2 col-lg-2 control-label">Aniversário</label>
-								<div class="col-sm-4 col-lg-4 controls">
-									<input type="text" id="aniversarioCadastroCliente" data-mask="99/99" placeholder="" class="form-control" tabindex="4">
-									<span class="help-inline">Ex: 08/11</span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-2 col-lg-2 control-label">Celular</label>
-								<div class="col-sm-4 col-lg-4 controls">
-									<input class="form-control col-md-5" type="text" id="celularCadastroCliente" data-mask="(99) 9999-9999" placeholder="" tabindex="5">
-									<span class="help-inline">(99) 9999-9999</span>
-								</div>
-								<label class="col-sm-2 col-lg-2 control-label">CPF</label>
-								<div class="col-sm-4 col-lg-4 controls">
-									<input class="form-control col-md-5" type="text" id="cpfCadastroCliente" data-mask="999.999.999-99" placeholder="" tabindex="6">
-									<span class="help-inline">999.999.999-99</span>
-								</div>
-							</div>
-							<div class="form-group">
-								<label class="col-sm-3 col-lg-2 control-label">E-mail</label>
-								<div class="col-sm-9 col-lg-10 controls">
-									<div class="input-group">
-										<span class="input-group-addon">@</span>
-										<input class="form-control" type="text" id="emailCadastroCliente" placeholder="E-mail" tabindex="7" />
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-primary" align="left" id="modalCadastrarClienteSalvar" tabindex="8">Salvar</button>
-							<button class="btn " data-dismiss="modal" id="modalCadastrarClienteFechar" tabindex="9">Fechar</button>						
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-		<!-- FIM MODAL CADASTRAR CLIENTE -->
-		
 		<!-- MODAL CONFIRMAR AGENDAMENTO -->
 		<div id="modalConfirmarAgendamento" class="modal fade">
 			<div class="modal-dialog">
@@ -348,6 +285,7 @@ include 'includes/navegacao/navbar.php';
 		</div>
 		<!-- FIM MODAL CONFIRMAR AGENDAMENTO -->
 		
+		<?php include 'includes/navegacao/modalscliente.php'; ?>
 		
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
@@ -361,7 +299,8 @@ include 'includes/navegacao/navbar.php';
 		
         <!--flaty scripts-->
 		<script src="js/base.js"></script>
-		<script src="js/agendar.js"></script>
+		<script src="js/cliente.js"></script>
+		<script src="js/agendar.js"></script>		
 		<script src="js/flaty.js"></script>
 		
     </body>

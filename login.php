@@ -42,7 +42,7 @@
                 </div>
                 <div class="form-group">
                     <div class="controls">
-                        <button type="button" id="btnLogarSistema" class="btn btn-primary form-control">Acessar</button>
+                        <button type="button" id="btnLogarSistema" class="btn btn-pink form-control">Acessar</button>
                     </div>
                 </div>
                 <hr/>

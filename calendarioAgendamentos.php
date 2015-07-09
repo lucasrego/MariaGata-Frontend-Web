@@ -151,7 +151,7 @@ include 'includes/navegacao/navbar.php';
 								</ul>
 							</div>
 							<!--<button type="button" class="btn btn-danger" align="left" id="modalConsultarAgendamentoCancelar">Cancelar Agendamento</button>-->
-							<button class="btn " data-dismiss="modal" id="modalConsultarAgendamentoFechar">Fechar</button>		
+							<button class="btn" data-dismiss="modal" id="modalConsultarAgendamentoFechar">Fechar</button>		
 						</div>
 					</form>
 				</div>

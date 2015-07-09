@@ -22,55 +22,6 @@ $(function() {
 	}
 	carregarDatas(30);
 	
-	function carregarClientes(clienteParaSelecionar) {
-		
-		$.ajax({
-			url: urlBackend,
-			type: 'POST',
-			data: {
-				a: 'obterclientes'
-			},
-			context: document.body
-			
-		})
-		.always(function() {		
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
-		})
-		.done(function(ret) {
-			
-			//Teste se o objeto retornao é JSON, ou seja, existem dados
-			var jsonRetorno = jQuery.parseJSON(ret);
-			var selected = "";
-			
-			$('#cmbClientes').empty();			
-			
-			$("#cmbClientes").append( "<option value=''>Selecione ou cadastre um novo</option>");
-			
-			//Se o JSON não tiver a opção resultado é porque 1 ou mais registro foram retornados
-			if (typeof jsonRetorno.resultado === "undefined") {				
-				$.each(jsonRetorno, function( index, value ) {
-					//Retorno: CLIE_ID, CLIE_Nome, CLIE_CPF, CLIE_Email, CLIE_Celular, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario
-					selected = "";				
-					if (typeof clienteParaSelecionar !== 'undefined') {
-						if (clienteParaSelecionar == value.CLIE_ID) {
-							selected = "selected";
-						}
-					}
-					$("#cmbClientes").append( "<option value='" + value.CLIE_ID + "' " + selected + ">" + "[" + value.CLIE_ID + "] " + value.CLIE_Nome + ' ' + value.CLIE_Sobrenome + " (" + value.CLIE_Celular + " / CPF: " + value.CLIE_CPF + ")</option>");
-				}); //Fim each json clientes
-			} else {
-				exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
-			} //Fim teste jsonRetorno.resultado
-			
-			//Atualiza combo chosen
-			$('#cmbClientes').trigger('chosen:updated');
-			
-		}); //Fim ajax
-		
-	}
-	
 	function carregarServicosFilial() {
 		
 		$.ajax({
@@ -465,20 +416,6 @@ $(function() {
 		}
 	});
 	
-	$('#btnCadastrarCliente').click(function (e) {
-		
-		//Limpar campos para novo cadastro
-		$('#nomeCadastroCliente').val("");
-		$('#sobrenomeCadastroCliente').val("");
-		$('#observacaoCadastroCliente').val("");
-		$('#aniversarioCadastroCliente').val("");
-		$('#celularCadastroCliente').val("");
-		$('#cpfCadastroCliente').val("");
-		$('#emailCadastroCliente').val("");
-		
-		$('#modalCadastrarCliente').modal('show');
-	});	
-	
 	IdProfissionalEsmalteria = "";
 	nomeProfissionalEsmalteria = "";
 	horarioEsmalteria = "";
@@ -628,76 +565,6 @@ $(function() {
 		
 	});
 	
-	$('#modalCadastrarClienteSalvar').click(function (e) {
-		
-		var nome = $('#nomeCadastroCliente').val().trim();
-		var sobrenome = $('#sobrenomeCadastroCliente').val().trim();
-		var observacao = $('#observacaoCadastroCliente').val().trim();
-		var aniversario = $('#aniversarioCadastroCliente').val().trim().replace(/\D/g,'');
-		var celular = $('#celularCadastroCliente').val().trim().replace(/\D/g,'');
-		var cpf = $('#cpfCadastroCliente').val().trim().replace(/\D/g,'');
-		var email = $('#emailCadastroCliente').val().trim();
-		
-		//exibirMensagem('Dados', 'aniversario: ' + aniversario + ', observacao: ' + observacao + ', sobrenome: ' + sobrenome + ', celular: ' + celular);
-		//return false;
-		
-		if (cpf != "") {
-			if (cpf.length != 11) {
-				exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">CPF</span> deve possuir 11 dígitos.');		
-				return false;
-			}
-		}
-		
-		if (nome == "") {
-			exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">NOME</span> não foi preenchido.');			
-			return false;
-		}
-		
-		if (celular != "") {
-			if ((celular.length != 10)&&(celular.length != 11)) {				
-				exibirMensagem('Atenção', 'O campo <span style="color:#00FF00">CELULAR</span> deve possuir 10 ou 11 dígitos.');		
-				return false;
-			}
-		}
-		
-		$.ajax({
-			url: urlBackend,
-			type: 'POST',
-			data: {
-				a: 'salvardadosusuario',
-				nome: nome,
-				sobrenome: sobrenome,
-				observacao: observacao,
-				aniversario: aniversario,
-				celular: celular,
-				cpf: cpf,
-				email: email				
-			},
-			context: document.body
-			
-		})
-		.always(function() {		
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
-		})
-		.done(function(ret) {
-			
-			//Teste se o objeto retornao é JSON, ou seja, existem dados
-			var jsonRetorno = jQuery.parseJSON(ret);
-			
-			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
-			if (jsonRetorno.resultado == 'SUCESSO') {
-				exibirMensagem('Maria Gata', 'Cliente cadastrado com sucesso!');
-				$('#modalCadastrarCliente').modal('hide');
-				carregarClientes(jsonRetorno.mensagem); //Recarrega a lista de cliente e já seleciona o ID do usuário recém cadastrado.
-			} else {
-				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
-			}	
-		}); //Fim ajax
-
-	});
-
 	
 	$('#modalConfirmarAgendamentoConcluir').click(function (e) {
 		

@@ -9,14 +9,14 @@
 	<ul class="nav nav-list">
 	
 		<li>
-			<a href="tPainel.php">
+			<a href="painel.php">
 				<i class="fa fa-dashboard"></i>
 				<span>Painel</span>
 			</a>
 		</li>
 		
 		<li>
-			<a href="tAtendimento.php">
+			<a href="atendimento.php">
 				<i class="fa fa-ticket"></i>
 				<span>Atender</span>
 			</a>
@@ -30,12 +30,18 @@
 		</li>
 		
 		<li>
-			<a href="tCalendario.php">
+			<a href="calendarioAgendamentos.php">
 				<i class="fa fa-search"></i>
 				<span>Consultar Agenda</span>
 			</a>
 		</li>
-
+		
+		<li>
+			<a href="sair.php">
+				<i class="fa fa-close"></i>
+				<span>Sair</span>
+			</a>
+		</li>
 		
 		<!--
 		<li>
