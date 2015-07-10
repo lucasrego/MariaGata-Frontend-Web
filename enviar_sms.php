@@ -125,7 +125,7 @@ function seven_bit_sms ( $username, $password, $message, $msisdn ) {
   'msisdn'   => $msisdn,
   'test_always_fail' => 0,
   'test_always_succeed' => 1,
-  'routing_group' => 2
+  'routing_group' => 3
   );
 
   return make_post_body($post_fields);

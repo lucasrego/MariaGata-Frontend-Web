@@ -114,7 +114,7 @@ switch ($acao) {
 				//header('Status: 200');
 				//header('Location: agendar.php');
 				
-				echo '{ "login": "SUCESSO"}';
+				echo '{"login": "SUCESSO, USUARIO: ' . $_SESSION['usuario'] . '"}';
 				exit;
 				
 			} else {
@@ -913,15 +913,18 @@ switch ($acao) {
 		} else { //Fim if se cpf foi passado
 			
 			if ($celular != "") {
+				
 				if ($db->Query("SELECT CLIE_ID, CLIE_Nome FROM cliente where CLIE_CELULAR = '" . $celular . "'")) {
 					if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
 						
 						$linha = $db->Row(0);
 						$nomeCliente = $linha->CLIE_Nome;
 					
-						echo '{ "resultado": "ERRO", "mensagem": "A cliente ' . $nomeCliente . ' já está cadastrada com este celular. Pesquise na lista pelo nome." }';
+						echo '{ "resultado": "ERRO", "mensagem": "Cliente ' . $nomeCliente . ' já está cadastrada com este celular: ' . $celular . '. Pesquise na lista pelo numero." }';
 						exit;
+						
 					} else {
+						
 						//NAO ENCONTROU CLIENTE PELO CELULAR: INSERE NOVO CLIENTE
 						$cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
 						$cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
@@ -943,8 +946,6 @@ switch ($acao) {
 						exit;
 					}
 				} else {
-					$db->TransactionRollback();
-					$db->Kill();
 					echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico e não conseguimos salvar os dados [5]! Tente pelo Whatsapp (71) 8879-1014" }';
 					exit;			
 				}

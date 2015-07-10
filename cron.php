@@ -11,7 +11,7 @@ date_default_timezone_set('America/Recife');
 $lsDataHoraAtual = date("Y-m-d H:i:s");
 $lsDataAtual = date("Y-m-d");
 
-$debugEnvioSMS = true;
+$debugEnvioSMS = false;
 
 // ***************************************************************
 // ************ Enviar SMS de lembrete do agendamento
@@ -25,7 +25,7 @@ if ($debugEnvioSMS) echo "-------------- Iniciando verificação e envio de SMS 
 $amanhaDeManha = date("Y-m-d", strtotime('tomorrow')) . " 11:00:00";
 
 $lsSQL = "
-		select a.AGEN_ID, DATE_FORMAT(AGEN_Data,'%d/%m/%Y as %H:%i') as DataInicioAtendimento, c.CLIE_ID, CLIE_Nome, CLIE_Celular, CLIE_Email, AGEN_Data
+		select a.AGEN_ID, DATE_FORMAT(AGEN_Data,'%d/%m/%y as %H:%i') as DataInicioAtendimento, c.CLIE_ID, CLIE_Nome, CLIE_Celular, CLIE_Email, AGEN_Data
 		from agendamento a, cliente c
 		where a.CLIE_ID = c.CLIE_ID
 		and AGEN_Situacao = 'A'
@@ -73,9 +73,9 @@ if ($db->Query($lsSQL)) {
 					
 					//Calcula 3 horas antes do agendamento
 					$horaIntervaloEnvio = new DateTime($dataAgendamento);
-					$horaIntervaloEnvio = date_format($horaIntervaloEnvio->modify('-3 hour'), 'H:i:s'); //Se agendamento 2015-06-15 12:30:00 = 09:30:00
+					$horaIntervaloEnvio = date_format($horaIntervaloEnvio->modify('-2 hour'), 'H:i:s'); //Se agendamento 2015-06-15 12:30:00 = 09:30:00
 					
-					//Se horario atual, já tiver passado de 3 horas do evento, envia SMS
+					//Se horario atual, já tiver passado de 2 horas do evento, envia SMS
 					if (date("H:i:s") >= $horaIntervaloEnvio) {										 	
 						if ($debugEnvioSMS) echo "<br />Vai enviar SMS, pois agendamento é para hoje e faltam menos de 3h. Hora atual: " . date("H:i:s");
 						$enviarSMSpeloHorario = true;
@@ -100,7 +100,7 @@ if ($db->Query($lsSQL)) {
 				if ($enviarSMSpeloHorario) {
 					
 					//Enviar SMS :: Revisar test_always_succeed no arquivo enviar_sms.php
-					$msg = "Oi " . $clienteNome . ". Seu momento esta confirmado na Maria Gata para " . $dataHoraInicioAgendamento . ". Qualquer problema estamos no WhatsApp 8879-1014, ok?";
+					$msg = "Oi " . $clienteNome . ". Seu momento esta confirmado na Maria Gata para " . $dataHoraInicioAgendamento . ". Qualquer problema estou no WhatsApp 8879-1014, ok? Juliana";
 					if (enviarSMS($msg, $clienteCelular)) {
 						if ($debugEnvioSMS) echo "<br />SMS enviado com sucesso...";
 						

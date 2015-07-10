@@ -90,7 +90,7 @@ include 'includes/navegacao/navbar.php';
 														<select id="cmbClientes" class="form-control chosen" data-placeholder="Selecione ou cadastre um novo" tabindex="6"></select>
 													</div>
 													<div class="col-sm-4 col-lg-4">
-														<button type="submit" id="btnNovoCliente" class="btn btn-primary btn-sm"><i class="fa fa-check"></i> Novo</button>
+														<a id="btnNovoCliente" class="btn btn-sm btn-primary" href="#"><i class="fa fa-plus"></i> Novo</a>
 														<a id="btnEditarCliente" class="btn btn-sm btn-inverse show-tooltip" title="Editar Cliente" href="#"><i class="fa fa-pencil"></i></a>
 														<a id="btnHistoricoCliente" class="btn btn-sm btn-inverse show-tooltip" title="Histórico de Atendimentos"  href="#"><i class="fa fa-book"></i></a>
 													</div>
