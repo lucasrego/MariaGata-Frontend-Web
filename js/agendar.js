@@ -160,27 +160,37 @@ $(function() {
 		if ($('#pacotesAgendamento').val() != 0) {
 			servicos += $('#pacotesAgendamento').val() + ",";
 			servicosnome += $("#pacotesAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#pacotesAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");	
+			if (atendimentoParalelo == "N") { //Se ainda não habilitou atendimentoParalelo, verifica se esse serviço irá habilitar
+				atendimentoParalelo = (($("#pacotesAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");	
+			}
 		}
 		if ($('#esmalteriaAgendamento').val() != 0) {
 			servicos += $('#esmalteriaAgendamento').val() + ",";
 			servicosnome += $("#esmalteriaAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#esmalteriaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			if (atendimentoParalelo == "N") { //Se ainda não habilitou atendimentoParalelo, verifica se esse serviço irá habilitar
+				atendimentoParalelo = (($("#esmalteriaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			}			
 		}
 		if ($('#escovariaAgendamento').val() != 0) {
 			servicos += $('#escovariaAgendamento').val() + ",";
 			servicosnome += $("#escovariaAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#escovariaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			if (atendimentoParalelo == "N") { //Se ainda não habilitou atendimentoParalelo, verifica se esse serviço irá habilitar
+				atendimentoParalelo = (($("#escovariaAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			}
 		}
 		if ($('#maquiagemAgendamento').val() != 0) {
 			servicos += $('#maquiagemAgendamento').val() + ",";
 			servicosnome += $("#maquiagemAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#maquiagemAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			if (atendimentoParalelo == "N") { //Se ainda não habilitou atendimentoParalelo, verifica se esse serviço irá habilitar
+				atendimentoParalelo = (($("#maquiagemAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			}
 		}
 		if ($('#depilacaoAgendamento').val() != 0) {
 			servicos += $('#depilacaoAgendamento').val() + ",";
 			servicosnome += $("#depilacaoAgendamento option:selected").text() + ", ";
-			atendimentoParalelo = (($("#depilacaoAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			if (atendimentoParalelo == "N") { //Se ainda não habilitou atendimentoParalelo, verifica se esse serviço irá habilitar
+				atendimentoParalelo = (($("#depilacaoAgendamento option:selected").attr("data-atendimentoParalelo") == "S") ? "S" : "N");
+			}
 		}
 		
 		if (unidadeAgendamento != 1) {

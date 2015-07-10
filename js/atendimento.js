@@ -216,7 +216,7 @@ $(function() {
 			exibirMensagem('Maria Gata', 'A data do atendimento não foi informada ou está inválida.');
 			return false;
 		} else {
-			dataAtendimento = dataAtendimento.split("/")[2] + "-" + dataAtendimento.split("/")[1] + "-" + dataAtendimento.split("/")[0]; 
+			dataAtendimento = dataAtendimento.split("/")[2] + "-" + dataAtendimento.split("/")[1] + "-" + dataAtendimento.split("/")[0];
 		}
 		
 		var totalServicos = $('#totalServicos').html();
@@ -314,7 +314,7 @@ $(function() {
 			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
 			if (jsonRetorno.resultado == 'SUCESSO') {
 				exibirAtendimentos();
-				limparAtendimento();
+				limparAtendimento();				
 				exibirMensagem('Maria Gata', 'Atendimento registrado com sucesso.');
 			} else {
 				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
@@ -495,7 +495,7 @@ $(function() {
 			}); //Fim ajax
 		
 		} else {
-			$.each(jsonServicos, function( index, value ) {					
+			$.each(jsonServicos, function( index, value ) {
 				selectorServico.append( "<option value='" + value.SERV_ID + "'>" + value.SERV_Nome + "</option>");
 			});
 			selectorServico.trigger('chosen:updated');
@@ -508,6 +508,18 @@ $(function() {
 		exibirAtendimentos();
 	});
 	
+	$('#btnConsultarComanda').click(function (e) {
+		var idComanda = $('#listaAtendimentos').val();
+		if ((idComanda == "")||((idComanda == null))) {
+			exibirMensagem('Maria Gata', 'Selecione uma Comanda.');
+			return false;
+		} else {
+			var cliente = idComanda.split("|")[0];
+			var atendimento = idComanda.split("|")[1];
+			obterExibirHistoricoCliente(cliente, atendimento);
+		}		
+	});
+
 	function exibirAtendimentos() {
 				
 		var dataAtendimento = $('#dataAtendimento').val();
@@ -537,6 +549,7 @@ $(function() {
 			.done(function(ret) {
 				
 				var jsonRetorno = jQuery.parseJSON(ret);
+				var somaComandas = 0;
 				
 				$('#listaAtendimentos').empty();
 				
@@ -551,9 +564,14 @@ $(function() {
 						}
 						
 						//ATEN_ID, ATEN_Status, CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
-						$('#listaAtendimentos').append( "<option class='" + classe + "' value='" + value.ATEN_ID + "'>[" + value.ATEN_ID + "] " + value.CLIE_Nome + " (" + value.ASER_ValorCobrado.replace('.',',') + ")</option>");
+						$('#listaAtendimentos').append( "<option class='" + classe + "' value='" + value.CLIE_ID + "|" + value.ATEN_ID + "'>[" + value.ATEN_ID + "] " + value.CLIE_Nome + " (" + value.ASER_ValorCobrado.replace('.',',') + ")</option>");
+						
+						somaComandas += parseInt(value.ASER_ValorCobrado.replace('.','').replace(',',''));
 						
 					});
+					
+					$("#totalFaturadoDia").html(somaComandas);
+					atualizarPriceFormat($('#totalFaturadoDia'));
 
 				} else {
 					exibirMensagem('Maria Gata', jsonRetorno.mensagem);	

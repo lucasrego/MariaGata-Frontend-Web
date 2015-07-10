@@ -20,10 +20,17 @@ $(function() {
 					usuario: usuario,
 					senha: senha
 				},
-				context: document.body
-				
+				context: document.body,
+				beforeSend: function( xhr ) {
+					$('#btnLogarSistema').html('Validando...');
+					$('#btnLogarSistema').removeClass("btn-pink").addClass("btn-gray").addClass("disabled");
+				},
+				complete: function(){
+					$('#btnLogarSistema').html('Acessar');
+					$('#btnLogarSistema').addClass("btn-pink").removeClass("btn-gray").removeClass("disabled");
+				}
 			})
-			.always(function() {		
+			.always(function() {
 			})
 			.fail(function(jqXHR, textStatus, errorThrown) {
 				exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
@@ -35,8 +42,8 @@ $(function() {
 				
 				if (typeof jsonRetorno.resultado === "undefined") {
 					
-					//$.redirect("agendar.php");
-					window.location = "agendar.php";
+					$.redirect("agendar.php");
+					//window.location = "agendar.php";
 										
 				} else {
 					exibirMensagem('Maria Gata', jsonRetorno.mensagem);

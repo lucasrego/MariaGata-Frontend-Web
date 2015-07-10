@@ -78,12 +78,14 @@ include 'includes/navegacao/navbar.php';
 											</div>
 										</div>
 										<div class="form-group">
-											<div class="col-xs-offset-4 col-sm-offset-4 col-md-offset-1 col-lg-offset-2">
-												<button type="submit" id="btnCancelarComanda" class="btn btn-inverse btn-sm"><i class="fa fa-search"></i> Detalhes Comanda</button>
+											<div class="col-sm-12 col-lg-12 col-xs-12 col-md-12 controls">
+												<h4 id="totalFaturadoDia" class="col-sm-8 col-xs-8 col-lg-8 campoMoeda"><b>0</b></h4>
+												<div class="col-sm-4 col-xs-4 col-lg-4 controls">
+													<button type="submit" id="btnConsultarComanda" class="btn btn-inverse btn-sm"><i class="fa fa-search"></i></button>
+												</div>
 											</div>
 										</div>
-									</form>
-								
+									</form>								
 								</div>
 							</div>	
 						</div>

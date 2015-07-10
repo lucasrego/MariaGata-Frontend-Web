@@ -40,6 +40,11 @@
 	background-color:rgb(140, 231, 137);
 }
 
+.detaqueAtendimentoHistorico {
+	background-color:rgb(140, 231, 137); 
+	color: white;
+}
+
 html {
     min-height: 100%;
     position: relative;

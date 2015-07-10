@@ -325,84 +325,98 @@ $('#btnHistoricoCliente').click(function (e) {
 	if (cliente == "") {
 		exibirMensagem('Maria Gata', 'Selecione um Cliente.');
 		return false;
-	} else {
-		
-		//Obtem histórico de atendimentos do cliente
-		$.ajax({
-			url: urlBackend,
-			type: 'POST',
-			data: {
-				a: 'obterhistoricoatendimentoscliente',
-				cliente: cliente
-			},
-			context: document.body
-			
-		})
-		.always(function() {		
-		})
-		.fail(function(jqXHR, textStatus, errorThrown) {
-			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
-		})
-		.done(function(ret) {
-			
-			//Teste se o objeto retornao é JSON, ou seja, existem dados
-			var jsonRetorno = jQuery.parseJSON(ret);
-			
-			if (typeof jsonRetorno.resultado === "undefined") {
-				
-				$('#tbodyTabelaHistoricoAtendimentosCliente').empty();
-				var lsTBody = "";
-				var textoServicos = "";
-				
-				$.each(jsonRetorno, function( index, value ) {
-					
-					//ATEN_ID, ATEN_DataAtendimento, ATEN_Status, FILI_ID, 
-					//CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, ASER_ValorCobrado,
-					//servicos (Separados por PIPE), precos (Separados por PIPE), funcionarios (Separados por PIPE)
-											
-					var arrayServicos = value.servicos.split("|");
-					var arrayPrecos = value.precos.split("|");
-					var arrayFuncionarios = value.funcionarios.split("|");						
-					textoServicos = "";
-					
-					$.each(arrayServicos, function( index, value ) {
-						textoServicos += arrayServicos[index] + " (" + arrayFuncionarios[index] + " / " + arrayPrecos[index] + "), ";
-					});					
-					textoServicos = textoServicos.substring(0,(textoServicos.length - 2)).toString();
-	
-	
-					lsTBody += "<tr id='" + value.ATEN_ID + "'>";
-					lsTBody += "	<td>";
-					lsTBody += value.ATEN_ID;
-					lsTBody += "	</td>";
-					lsTBody += "	<td>";
-					lsTBody += value.ATEN_DataAtendimento;
-					lsTBody += "	</td>";
-					lsTBody += "	<td>";
-					lsTBody += value.ASER_ValorCobrado;
-					lsTBody += "	</td>";
-					lsTBody += "	<td>";
-					lsTBody += textoServicos;
-					lsTBody += "	</td>";
-					lsTBody += "</tr>";
-					
-				}); //Fim each json
-				
-				$('#tbodyTabelaHistoricoAtendimentosCliente').append(lsTBody);
-				$('.popoverServicos').addClass('show-popover');					
-				$('#modalHistoricoCliente').modal('show');
-				
-			} else {
-				exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
-			} //Fim teste jsonRetorno.resultado
-			
-			
-		}); //Fim ajax
-		
+	} else {		
+		obterExibirHistoricoCliente(cliente);		
 	}		
 	
 });
 
+
+function obterExibirHistoricoCliente(cliente, atendimento) {
+	
+	//Obtem histórico de atendimentos do cliente
+	$.ajax({
+		url: urlBackend,
+		type: 'POST',
+		data: {
+			a: 'obterhistoricoatendimentoscliente',
+			cliente: cliente
+		},
+		context: document.body
+		
+	})
+	.always(function() {		
+	})
+	.fail(function(jqXHR, textStatus, errorThrown) {
+		exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+	})
+	.done(function(ret) {
+		
+		//Teste se o objeto retornao é JSON, ou seja, existem dados
+		var jsonRetorno = jQuery.parseJSON(ret);
+		
+		if (typeof jsonRetorno.resultado === "undefined") {
+			
+			$('#tbodyTabelaHistoricoAtendimentosCliente').empty();
+			var lsTBody = "";
+			var textoServicos = "";
+			var classeAtendimentoDestaque = "";
+			
+			$.each(jsonRetorno, function( index, value ) {
+				
+				//ATEN_ID, ATEN_DataAtendimento, ATEN_Status, FILI_ID, 
+				//CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, ASER_ValorCobrado,
+				//servicos (Separados por PIPE), precos (Separados por PIPE), funcionarios (Separados por PIPE)
+										
+				var arrayServicos = value.servicos.split("|");
+				var arrayPrecos = value.precos.split("|");
+				var arrayFuncionarios = value.funcionarios.split("|");						
+				textoServicos = "";
+				
+				$.each(arrayServicos, function( index, value ) {
+					textoServicos += arrayServicos[index] + " (" + arrayFuncionarios[index] + " / " + arrayPrecos[index] + "), ";
+				});					
+				textoServicos = textoServicos.substring(0,(textoServicos.length - 2)).toString();
+				
+				//Se atendimento foi passado, a linha terá destaque na lista
+				if (typeof atendimento !== 'undefined') {
+					if (atendimento == value.ATEN_ID) {
+						classeAtendimentoDestaque = "detaqueAtendimentoHistorico";
+					} else {
+						classeAtendimentoDestaque = "";
+					}
+				}
+
+				lsTBody += "<tr class='" + classeAtendimentoDestaque + "' id='" + value.ATEN_ID + "'>";
+				lsTBody += "	<td>";
+				lsTBody += value.ATEN_ID;
+				lsTBody += "	</td>";
+				lsTBody += "	<td>";
+				lsTBody += value.ATEN_DataAtendimento;
+				lsTBody += "	</td>";
+				lsTBody += "	<td>";
+				lsTBody += value.ASER_ValorCobrado;
+				lsTBody += "	</td>";
+				lsTBody += "	<td>";
+				lsTBody += textoServicos;
+				lsTBody += "	</td>";
+				lsTBody += "</tr>";
+				
+			}); //Fim each json
+			
+			$('#tbodyTabelaHistoricoAtendimentosCliente').append(lsTBody);
+			$('.popoverServicos').addClass('show-popover');					
+			$('#modalHistoricoCliente').modal('show');
+			
+		} else {
+			exibirMensagem('Maria Gata', jsonRetorno.mensagem);	
+		} //Fim teste jsonRetorno.resultado
+		
+		
+	}); //Fim ajax
+
+}
+		
 
 // ******************************************//
 // ********* FIM HISTÓRICO CLIENTE **********//

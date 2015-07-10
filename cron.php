@@ -5,13 +5,13 @@ include("includes/bd/mysql.class.php");
 include("includes/bd/conectarBanco.php");
 include("includes/bd/conectarBanco1.php");
 include("includes/util/util.php");
-include("includes/util/enviar_sms.php");
+include("enviar_sms.php");
 
 date_default_timezone_set('America/Recife');
 $lsDataHoraAtual = date("Y-m-d H:i:s");
 $lsDataAtual = date("Y-m-d");
 
-$debugEnvioSMS = false;
+$debugEnvioSMS = true;
 
 // ***************************************************************
 // ************ Enviar SMS de lembrete do agendamento
@@ -77,7 +77,7 @@ if ($db->Query($lsSQL)) {
 					
 					//Se horario atual, já tiver passado de 2 horas do evento, envia SMS
 					if (date("H:i:s") >= $horaIntervaloEnvio) {										 	
-						if ($debugEnvioSMS) echo "<br />Vai enviar SMS, pois agendamento é para hoje e faltam menos de 3h. Hora atual: " . date("H:i:s");
+						if ($debugEnvioSMS) echo "<br />Vai enviar SMS, pois agendamento é para hoje e faltam menos de 2h. Hora atual: " . date("H:i:s");
 						$enviarSMSpeloHorario = true;
 					} else {
 						if ($debugEnvioSMS) echo "<br />Não faltam 3h para o agendamento...";
@@ -100,7 +100,7 @@ if ($db->Query($lsSQL)) {
 				if ($enviarSMSpeloHorario) {
 					
 					//Enviar SMS :: Revisar test_always_succeed no arquivo enviar_sms.php
-					$msg = "Oi " . $clienteNome . ". Seu momento esta confirmado na Maria Gata para " . $dataHoraInicioAgendamento . ". Qualquer problema estou no WhatsApp 8879-1014, ok? Juliana";
+					$msg = "Oi " . $clienteNome . "! Seu momento esta confirmado na Maria Gata para " . $dataHoraInicioAgendamento . ". Qualquer problema estou no WhatsApp 8879-1014, ok? ;) Juliana";
 					if (enviarSMS($msg, $clienteCelular)) {
 						if ($debugEnvioSMS) echo "<br />SMS enviado com sucesso...";
 						
