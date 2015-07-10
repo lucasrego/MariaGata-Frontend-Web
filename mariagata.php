@@ -794,6 +794,7 @@ switch ($acao) {
 		}
 		
 		//UPDATE NOS DADOS DO CLIENTE
+		$update_cliente["CLIE_CPF"]  = MySQL::SQLValue($cpf);
 		$update_cliente["CLIE_Nome"]  = MySQL::SQLValue($nome);
 		$update_cliente["CLIE_Sobrenome"]  = MySQL::SQLValue($sobrenome);
 		$update_cliente["CLIE_Observacao"]  = MySQL::SQLValue($observacao);

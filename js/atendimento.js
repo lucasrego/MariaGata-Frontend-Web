@@ -382,20 +382,39 @@ $(function() {
 					
 					//CLIE_CPF, CLIE_Nome, CLIE_Sobrenome, CLIE_Observacao, CLIE_Aniversario, CLIE_Email, CLIE_Celular, CLIE_DataCadastro, CLIE_DataUltimaAtualizacaoDados, CLIE_ValeAcumulado
 					
-					$('#alertaClienteConteudo').html("");
+					$('#alertaClienteConteudo').html("");					
+					var mensagemAlerta = "";
+					var bDadosCadastraisPendentes = false;
 					
 					if ((jsonRetorno[0].CLIE_Celular == "")||(jsonRetorno[0].CLIE_Celular == null)) {
-						$('#alertaClienteConteudo').append(" <strong>Atualize o celular! </strong> ");						
-						$('#alertaCliente').show();
+						mensagemAlerta = mensagemAlerta + "<span style='color:#00FF00'>Celular </span><BR />";
+						bDadosCadastraisPendentes = true;
 					}
 					if ((jsonRetorno[0].CLIE_Email == "")||(jsonRetorno[0].CLIE_Email == null)) {
-						$('#alertaClienteConteudo').append(" <strong>Atualize o email! </strong> ");						
-						$('#alertaCliente').show();
+						mensagemAlerta = mensagemAlerta + "<span style='color:#00FF00'>E-mail </span><BR />";
+						bDadosCadastraisPendentes = true;
 					}
+					if ((jsonRetorno[0].CLIE_CPF == "")||(jsonRetorno[0].CLIE_CPF == null)) {
+						mensagemAlerta = mensagemAlerta + "<span style='color:#00FF00'>CPF </span><BR />";
+						bDadosCadastraisPendentes = true;
+					}
+					if ((jsonRetorno[0].CLIE_Aniversario == "")||(jsonRetorno[0].CLIE_Aniversario == null)) {
+						mensagemAlerta = mensagemAlerta + "<span style='color:#00FF00'>Aniversário </span>";
+						bDadosCadastraisPendentes = true;
+					}
+					if (bDadosCadastraisPendentes) {
+						mensagemAlerta = mensagemAlerta.substring(0,(mensagemAlerta.length - 1)).toString();
+						exibirMensagem('Dados pendentes de ' + jsonRetorno[0].CLIE_Nome, mensagemAlerta);
+					}
+					
 					if ((jsonRetorno[0].CLIE_Observacao != "")&&(jsonRetorno[0].CLIE_Observacao != null)) {
-						$('#alertaClienteConteudo').append(" <strong>Observação: </strong>" + jsonRetorno[0].CLIE_Observacao);						
-						$('#alertaCliente').show();
+						exibirMensagem('Obs de ' + jsonRetorno[0].CLIE_Nome, jsonRetorno[0].CLIE_Observacao);
 					}
+					
+					//if (mensagemAlerta != "") {
+					//	$('#alertaClienteConteudo').append(mensagemAlerta);						
+					//	$('#alertaCliente').show();
+					//}
 					
 					$('#valeExistente').html(jsonRetorno[0].CLIE_ValeAcumulado);
 					atualizarPriceFormat($('#valeExistente'));
