@@ -1006,6 +1006,7 @@ switch ($acao) {
 					min(start) as start,
 					max(end) as end,
 					dataAgendamento,
+					dataAgendamentoSemFormatar,
 					dataCriacao,
 					nomeCliente,
 					celularCliente,
@@ -1021,6 +1022,7 @@ switch ($acao) {
 							AGFU_HoraInicio as start,
 							AGFU_HoraFim as end,
 							DATE_FORMAT(AGEN_Data,'%d/%m/%Y') as dataAgendamento,
+							AGEN_Data as dataAgendamentoSemFormatar,
 							AGEN_DataCriacao as dataCriacao,
 							c.CLIE_Nome as nomeCliente,
 							c.CLIE_Celular as celularCliente,
@@ -1036,6 +1038,7 @@ switch ($acao) {
 							and AGEN_Situacao = 'A'
 					) a
 				group by a.AGEN_ID
+				order by dataAgendamentoSemFormatar
 				";
 		
 		//echo $sql_query;

@@ -7,18 +7,20 @@ date_default_timezone_set('America/Recife');
 $lsDataHoraAtual = date("Y-m-d H:i:s");
 $lsDataAtual = date("Y-m-d");
 
-$campo = "SEGS_Duracao"; //<----------
-$valor = 90; //<----------
-$tabela = "servico_grupo_servico"; //<----------
-$chave = "SEGS_ID"; //<----------
-$chave_valor = 42; //<----------
+$campo = "FUHB_HorarioBloqueado"; //<----------
+$novo_valor = "N"; //<----------
+$tabela = "funcionario_horarios_base"; //<----------
+$chave = "FUNC_ID"; //<----------
+$valor_where = 10; //<----------
 
-$update[$campo]  = MySQL::SQLValue($valor, MySQL::SQLVALUE_NUMBER); //<----------
-if (! $db->UpdateRows($tabela, $update, array($chave => $chave_valor))) {
+//$update[$campo]  = MySQL::SQLValue($novo_valor, MySQL::SQLVALUE_NUMBER); //<----------
+$update[$campo]  = MySQL::SQLValue($novo_valor); //<----------
+
+if (! $db->UpdateRows($tabela, $update, array($chave => $valor_where))) {
 	echo '{ "resultado": "ERRO", "mensagem": "Ops! Não foi possível atualizar os dados!" }';
 	exit;
 } else {
-	echo '{ "resultado": "SUCESSO", "mensagem": "Campo ' . $chave_valor . ' atualizado com: ' . $valor . '"}';
+	echo '{ "resultado": "SUCESSO", "mensagem": "Campo ' . $valor_where . ' atualizado com: ' . $novo_valor . '"}';
 	exit;
 }
 
