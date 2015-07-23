@@ -172,7 +172,6 @@ include 'includes/navegacao/navbar.php';
         <!--flaty scripts-->
         <script src="js/base.js"></script>
 		<script src="js/calendario.js"></script>
-		<script src="js/flaty.js"></script>
 
     </body>
 </html>

@@ -335,6 +335,60 @@ switch ($acao) {
 		break;
 		
 	
+	case "obterrelatoriocomissoes":
+	
+		//http://mariagata.com.br/sistema/mariagata.php?a=obterrelatoriocomissoes&filial=1&inicio=20150701&fim=20150731
+		
+		$filial = $_POST["filial"];
+		$inicio = $_POST["inicio"];
+		$fim = $_POST["fim"];
+		
+		$sql_query = "SELECT 
+							a.ATEN_ID,
+							DATE_FORMAT(ATEN_DataAtendimento,'%d/%m/%y') as ATEN_DataAtendimento,
+							SERV_Nome,
+							SERV_Tipo,
+							ASER_ValorCobrado,
+							f.FUNC_ID,
+							FUNC_Nome,
+							FUNC_Especialidade,
+							FUNC_ComissaoServico,
+							FUNC_ComissaoProduto
+						FROM
+							atendimento a,
+							atendimento_servicos ats,
+							servico s,
+							funcionario f
+						WHERE
+							a.ATEN_ID = ats.ATEN_ID
+							and ats.SERV_ID = s.SERV_ID
+							and ats.FUNC_ID = f.FUNC_ID
+							and ATEN_DataAtendimento >= '" . $inicio . "'
+							and ATEN_DataAtendimento <= '" . $fim . "'
+							and ATEN_Status = 'P'
+							and a.FILI_ID = " . $filial . "
+						ORDER BY f.FUNC_ID, ATEN_DataAtendimento, a.ATEN_ID
+						";
+		
+		//echo $sql_query;
+		//exit;
+		
+		if ($db->Query($sql_query)) {
+			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+				echo $db->GetJSON();
+			} else {
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Nenhum atendimento encontrado para o período."}';
+				exit;
+			}
+		} else {
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos obter os dados de comissão para o período."}';
+			exit;			
+		}
+		
+		break;
+		
+	
+	
 	case "obterdetalhesagendamento":
 		
 		//http://mariagata.com.br/sistema/mariagata.php?a=obterdetalhesagendamento&agendamento=1

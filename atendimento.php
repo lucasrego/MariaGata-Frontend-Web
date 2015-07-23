@@ -234,8 +234,6 @@ include 'includes/navegacao/navbar.php';
 		<script src="js/base.js"></script>
 		<script src="js/cliente.js"></script>
 		<script src="js/atendimento.js"></script>		
-		<script src="js/flaty.js"></script>
-		
 
     </body>
 </html>

@@ -299,8 +299,7 @@ include 'includes/navegacao/navbar.php';
         <!--flaty scripts-->
 		<script src="js/base.js"></script>
 		<script src="js/cliente.js"></script>
-		<script src="js/agendar.js"></script>		
-		<script src="js/flaty.js"></script>
+		<script src="js/agendar.js"></script>
 		
     </body>
 </html>
