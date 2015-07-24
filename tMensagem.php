@@ -43,6 +43,7 @@ include 'includes/navegacao/navbar.php';
 					<button class="close" data-dismiss="alert">&times;</button>
 					<?php echo $_GET["r"]; ?>
 				</div>
+				<!--
 				<div class="row">
 					<div class="col-md-12">
 						<div class="col-md-2 col-md-offset-6">
@@ -50,6 +51,7 @@ include 'includes/navegacao/navbar.php';
 						</div>
 					</div>
 				</div>
+				-->
                 <!-- END Main Content -->
                 
                 <a id="btn-scrollup" class="btn btn-circle btn-lg" href="#"><i class="fa fa-chevron-up"></i></a>
@@ -61,7 +63,7 @@ include 'includes/navegacao/navbar.php';
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
         <!--page specific plugin scripts-->
-		<script src="js/mensagem.js"></script>
+		<script src="js/base.js"></script>
 
     </body>
 </html>

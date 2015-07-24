@@ -11,9 +11,6 @@ if (ambiente == "TES") {
 	$('body').removeClass("skin-black").addClass("skin-pink");
 }
 
-
-
-
 function exibirMensagem(titulo, msg) {
 	$.gritter.add({
 		title: titulo,

@@ -2,12 +2,22 @@
 include("includes/util/validar_sessao.php");
 include("includes/bd/mysql.class.php");
 include("includes/bd/conectarBanco.php");
+
+//VALIDAÇÃO DE PERFIL
+if ($_SESSION['usuarioperfil'] != 'A') {
+	header('Location: tMensagem.php?r=É necessário ter o perfil Administrador para acessar esta página.');
+	exit;
+}
     
 include 'includes/navegacao/head.php'; 
 
 include 'includes/navegacao/navbar.php'; 
-	
+
+
+
 ?>
+		<!--page specific css styles-->
+		<link rel="stylesheet" type="text/css" href="assets/bootstrap-daterangepicker/daterangepicker.css" />
 		
 		<!-- BEGIN Container -->
         <div class="container" id="main-container">
@@ -47,11 +57,17 @@ include 'includes/navegacao/navbar.php';
 										<div class="invoice">
 											<div class="row">
 												<div class="col-md-6">
-													<h2>Relatório de Comissão&nbsp;&nbsp;<button type="button" id="btnImprimir" class="btn"><i class="fa fa-print"></i></button></h2>													
+													<h2>Relatório de Comissão&nbsp;&nbsp;<button type="button" id="btnImprimir" class="btn no-print"><i class="fa fa-print"></i></button></h2>													
 												</div>
 												<div class="col-md-6 invoice-info">
-													<p class="font-size-17"><strong>01/07/2015 a 31/07/2015</strong></p>
-													<p>Gerado em 05/08/2015</p>
+													<p class="font-size-17"><strong><i class="fa fa-calendar date-range"></i>&nbsp;&nbsp;<span id="periodoSelecionado" class="date-range">Selecione o período</span></strong></p>
+													<!--
+													<div class="input-group">
+														<span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+														<input type="text" class="form-control date-range" />
+													</div>
+													-->
+													<p>Gerado em <?php echo date('d/m/Y'); ?></p>
 												</div>
 											</div>
 											
@@ -85,7 +101,9 @@ include 'includes/navegacao/navbar.php';
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
         <!--page specific plugin scripts-->
-		<script src="assets/jquery-print/jquery-print.js"></script>
+		<script type="text/javascript" src="assets/jquery-print/jquery.print.js"></script>
+		<script type="text/javascript" src="assets/bootstrap-daterangepicker/moment.js"></script>
+		<script type="text/javascript" src="assets/bootstrap-daterangepicker/daterangepicker.js"></script>
 		
         <!--flaty scripts-->
         <script src="js/base.js"></script>

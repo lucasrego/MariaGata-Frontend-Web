@@ -1,13 +1,13 @@
-function exibirRelatorioComissoes() {
-	
+function exibirRelatorioComissoes(filial, inicio, fim) {
+	//inicio e fim no formato: YYYYMMDD
 	$.ajax({
 		url: urlBackend,
 		type: 'POST',
 		data: {
 			a: 'obterrelatoriocomissoes',
-			filial: '1',
-			inicio: '20150701',
-			fim: '20150731'
+			filial: filial,
+			inicio: inicio,
+			fim: fim
 		},
 		context: document.body		
 	})
@@ -116,7 +116,7 @@ function exibirRelatorioComissoes() {
 				
 				ultimoFuncionario = value.FUNC_ID;
 				
-			}); //Fim each json clientes
+			}); //Fim each
 			
 			$('#corpoRelatorio').append(lsHTML);
 			
@@ -128,4 +128,62 @@ function exibirRelatorioComissoes() {
 	
 }
 
-exibirRelatorioComissoes();
+var d = new Date();
+d.setDate( d.getDate() + i );
+
+var dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+dia = d.getDay(); //0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sab
+nome_dia = dias[dia];
+
+var meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+mes = d.getMonth(); //0=Janeiro, 1=Fevereiro, 11=Dezembro
+nome_mes_atual = meses[mes];
+if (mes == 0) {
+	nome_mes_anterior = meses[12];
+} else {
+	nome_mes_anterior = meses[parseInt(mes)-1];
+}
+
+alert(nome_mes_atual = " - " + nome_mes_anterior);
+
+//data_id = d.getFullYear() + "/" + mes + "/" + d.getDate();
+//data_exibicao = d.getDate() + "/" + mes + "/" + d.getFullYear() + " (" + nome_dia + ")";
+
+$('.date-range').daterangepicker({
+    "showDropdowns": true,
+    "timePickerIncrement": 1,
+    "ranges": {
+        "Last 7 Days": [
+            "2015-07-18T17:19:23.261Z",
+            "2015-07-24T17:19:23.261Z"
+        ],
+        "Last 30 Days": [
+            "2015-06-25T17:19:23.261Z",
+            "2015-07-24T17:19:23.261Z"
+        ],
+        "This Month": [
+            "2015-07-01T03:00:00.000Z",
+            "2015-08-01T02:59:59.999Z"
+        ],
+        "Last Month": [
+            "2015-06-01T03:00:00.000Z",
+            "2015-07-01T02:59:59.999Z"
+        ]
+    },
+    "startDate": "07/01/2015",
+    "endDate": "07/15/2015",
+    "opens": "left",
+    "drops": "down",
+    "buttonClasses": "btn btn-sm",
+    "applyClass": "btn-success",
+    "cancelClass": "btn-default"
+}, function(start, end, label) {
+	$('#periodoSelecionado').text(start.format('DD/MM/YYYY') + ' a ' + end.format('DD/MM/YYYY'));
+	exibirRelatorioComissoes(1, start.format('YYYYMMDD'), end.format('YYYYMMDD'));
+});
+
+
+$('#btnImprimir').click(function (e) {
+	$('.relatoriocompleto').print();
+});
+

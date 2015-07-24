@@ -37,6 +37,18 @@
 		</li>
 		
 		<li>
+			<a href="#" class="dropdown-toggle">
+				<i class="fa fa-print"></i>
+				<span>Relatórios</span>
+				<b class="arrow fa fa-angle-right"></b>
+			</a>
+
+			<ul class="submenu">
+				<li><a href="relatorioComissao.php">Comissão Funcionários</a></li>
+			</ul>
+		</li>
+		
+		<li>
 			<a href="sair.php">
 				<i class="fa fa-close"></i>
 				<span>Sair</span>
