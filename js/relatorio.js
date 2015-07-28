@@ -1,4 +1,8 @@
 function exibirRelatorioComissoes(filial, inicio, fim) {
+	
+	//Limpa dados atuais do relatório
+	$('#corpoRelatorio').html("");
+	
 	//inicio e fim no formato: YYYYMMDD
 	$.ajax({
 		url: urlBackend,
@@ -55,6 +59,11 @@ function exibirRelatorioComissoes(filial, inicio, fim) {
 					somaServicosFuncionario = 0;
 				
 					lsHTML += "<br />";
+					
+					//Adiciona page break print a partir do segundo elemento. Incluir impressao.css
+					if (index != 0) {
+						lsHTML += "<div class='page-break'></div>";
+					}
 					
 					lsHTML += "<div class='invoice'>";
 					lsHTML += "	<div class='row'>";
@@ -128,57 +137,66 @@ function exibirRelatorioComissoes(filial, inicio, fim) {
 	
 }
 
-var d = new Date();
-d.setDate( d.getDate() + i );
-
-var dias = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
-dia = d.getDay(); //0=dom, 1=seg, 2=ter, 3=qua, 4=qui, 5=sex, 6=sab
-nome_dia = dias[dia];
-
-var meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
-mes = d.getMonth(); //0=Janeiro, 1=Fevereiro, 11=Dezembro
-nome_mes_atual = meses[mes];
-if (mes == 0) {
-	nome_mes_anterior = meses[12];
-} else {
-	nome_mes_anterior = meses[parseInt(mes)-1];
-}
-
-alert(nome_mes_atual = " - " + nome_mes_anterior);
-
-//data_id = d.getFullYear() + "/" + mes + "/" + d.getDate();
-//data_exibicao = d.getDate() + "/" + mes + "/" + d.getFullYear() + " (" + nome_dia + ")";
 
 $('.date-range').daterangepicker({
-    "showDropdowns": true,
     "timePickerIncrement": 1,
+	 "locale": {
+        "format": "DD/MM/YYYY",
+        "separator": " - ",
+        "applyLabel": "Aplicar",
+        "cancelLabel": "Cancelar",
+        "fromLabel": "De",
+        "toLabel": "Para",
+        "customRangeLabel": "Escolher",
+        "daysOfWeek": [
+            "Do",
+            "Se",
+            "Te",
+            "Qa",
+            "Qi",
+            "Se",
+            "Sa"
+        ],
+        "monthNames": [
+            "Janeiro",
+            "Fevereiro",
+            "Março",
+            "Abril",
+            "Maio",
+            "Junho",
+            "Julho",
+            "Agosto",
+            "Setembro",
+            "Outubro",
+            "Novembro",
+            "Dezembro"
+        ],
+        "firstDay": 1
+    },
     "ranges": {
-        "Last 7 Days": [
-            "2015-07-18T17:19:23.261Z",
-            "2015-07-24T17:19:23.261Z"
+        "Este Mês": [
+            moment().startOf("month"),
+            moment().endOf("month")
         ],
-        "Last 30 Days": [
-            "2015-06-25T17:19:23.261Z",
-            "2015-07-24T17:19:23.261Z"
+        "Mês Anterior": [
+            moment().subtract(1, 'M').startOf("month"),
+            moment().subtract(1, 'M').endOf("month")
         ],
-        "This Month": [
-            "2015-07-01T03:00:00.000Z",
-            "2015-08-01T02:59:59.999Z"
-        ],
-        "Last Month": [
-            "2015-06-01T03:00:00.000Z",
-            "2015-07-01T02:59:59.999Z"
+        "Últimos 6 Meses": [
+            moment().subtract(5, 'M').startOf("month"),
+            moment().endOf("month")
         ]
     },
-    "startDate": "07/01/2015",
-    "endDate": "07/15/2015",
-    "opens": "left",
+	//"startDate": moment().startOf("month").format('DD/MM/YYYY'),
+	//"endDate": moment().endOf("month").format('DD/MM/YYYY'),
+	"opens": "left",
     "drops": "down",
     "buttonClasses": "btn btn-sm",
     "applyClass": "btn-success",
     "cancelClass": "btn-default"
 }, function(start, end, label) {
 	$('#periodoSelecionado').text(start.format('DD/MM/YYYY') + ' a ' + end.format('DD/MM/YYYY'));
+	$('#dataGeracao').text("Gerado em: " + moment().format("DD/MM/YYYY HH:mm:ss"));
 	exibirRelatorioComissoes(1, start.format('YYYYMMDD'), end.format('YYYYMMDD'));
 });
 

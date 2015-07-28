@@ -124,7 +124,7 @@ function seven_bit_sms ( $username, $password, $message, $msisdn ) {
   'message'  => character_resolve( $message ),
   'msisdn'   => $msisdn,
   'test_always_fail' => 0,
-  'test_always_succeed' => 1,
+  'test_always_succeed' => 0,
   'routing_group' => 3
   );
 

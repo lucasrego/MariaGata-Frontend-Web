@@ -1,7 +1,7 @@
 
 //urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
 
-var ambiente = "TES"; //TES ou PRO
+var ambiente = "PRO"; //TES ou PRO
 
 if (ambiente == "TES") {
 	urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
@@ -10,6 +10,9 @@ if (ambiente == "TES") {
 	urlBackend = "http://mariagata.com.br/sistema/mariagata.php"; //Produção
 	$('body').removeClass("skin-black").addClass("skin-pink");
 }
+
+
+
 
 function exibirMensagem(titulo, msg) {
 	$.gritter.add({

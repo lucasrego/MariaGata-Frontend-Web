@@ -367,7 +367,7 @@ switch ($acao) {
 							and ATEN_DataAtendimento <= '" . $fim . "'
 							and ATEN_Status = 'P'
 							and a.FILI_ID = " . $filial . "
-						ORDER BY f.FUNC_ID, ATEN_DataAtendimento, a.ATEN_ID
+						ORDER BY f.FUNC_ID, ATEN_DataAtendimento
 						";
 		
 		//echo $sql_query;
@@ -1289,10 +1289,10 @@ switch ($acao) {
 							//$horarioFinalEsmalteria = $horarioEsmalteria + $duracao; Ex: 09:30 + 120 min
 							$horarioFinalEsmalteria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($laHorarioEsmalteria[$i])));  //11:30
 							
-							//Bloqueia angendamentos que terminarem após às 18:30h
-							if (date("H:i", strtotime($horarioFinalEsmalteria)) > date("H:i", strtotime("18:30"))) {
+							//Bloqueia angendamentos que terminarem após às 20:30h
+							if (date("H:i", strtotime($horarioFinalEsmalteria)) > date("H:i", strtotime("20:30"))) {
 								//deletarEventoGoogleCalendar($eventoCriado->id);
-								echo '{ "resultado": "ERRO", "mensagem": "O horário de término do serviço da Esmalteria não pode passar às 18:30h!" }';
+								echo '{ "resultado": "ERRO", "mensagem": "O horário de término do serviço da Esmalteria não pode passar às 20:30h!" }';
 								exit;
 							}
 							
@@ -1385,10 +1385,10 @@ switch ($acao) {
 							//$horarioFinalEscovaria = $horarioEscovaria + $duracao; Ex: 09:30 + 120 min
 							$horarioFinalEscovaria = date("H:i", strtotime('+' . $duracao . ' minutes', strtotime($laHorarioEscovaria[$i])));
 							
-							//Bloqueia angendamentos que terminarem após às 18:30h
-							if (date("H:i", strtotime($horarioFinalEscovaria)) > date("H:i", strtotime("18:30"))) {
+							//Bloqueia angendamentos que terminarem após às 20:30h
+							if (date("H:i", strtotime($horarioFinalEscovaria)) > date("H:i", strtotime("20:30"))) {
 								//deletarEventoGoogleCalendar($eventoCriado->id);
-								echo '{ "resultado": "ERRO", "mensagem": "O horário de término do serviço de Cabelo e Estética não pode passar às 18:30h!" }';
+								echo '{ "resultado": "ERRO", "mensagem": "O horário de término do serviço de Cabelo e Estética não pode passar às 20:30h!" }';
 								exit;
 							}
 							

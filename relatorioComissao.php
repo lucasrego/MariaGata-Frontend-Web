@@ -18,6 +18,8 @@ include 'includes/navegacao/navbar.php';
 ?>
 		<!--page specific css styles-->
 		<link rel="stylesheet" type="text/css" href="assets/bootstrap-daterangepicker/daterangepicker.css" />
+		<link rel="stylesheet" href="assets/gritter/css/jquery.gritter.css">
+		<link rel="stylesheet" href="css/impressao.css">
 		
 		<!-- BEGIN Container -->
         <div class="container" id="main-container">
@@ -67,7 +69,7 @@ include 'includes/navegacao/navbar.php';
 														<input type="text" class="form-control date-range" />
 													</div>
 													-->
-													<p>Gerado em <?php echo date('d/m/Y'); ?></p>
+													<p><span id="dataGeracao"></span></p>
 												</div>
 											</div>
 											
@@ -104,6 +106,7 @@ include 'includes/navegacao/navbar.php';
 		<script type="text/javascript" src="assets/jquery-print/jquery.print.js"></script>
 		<script type="text/javascript" src="assets/bootstrap-daterangepicker/moment.js"></script>
 		<script type="text/javascript" src="assets/bootstrap-daterangepicker/daterangepicker.js"></script>
+		<script src="assets/gritter/js/jquery.gritter.min.js"></script>
 		
         <!--flaty scripts-->
         <script src="js/base.js"></script>

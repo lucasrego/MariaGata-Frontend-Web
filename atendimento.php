@@ -9,7 +9,7 @@ include 'includes/navegacao/navbar.php';
 	
 ?>
 		
-		<!--page specific css styles-->
+		<!--page specific css styles-->		
 		<link rel="stylesheet" type="text/css" href="assets/jquery-ui/jquery-ui.min.css" />
 		<link rel="stylesheet" type="text/css" href="assets/chosen-bootstrap/chosen.min.css" />
         <link rel="stylesheet" href="assets/gritter/css/jquery.gritter.css">
