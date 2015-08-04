@@ -315,7 +315,7 @@ $(function() {
 			if (jsonRetorno.resultado == 'SUCESSO') {
 				exibirAtendimentos();
 				limparAtendimento();				
-				exibirMensagem('Maria Gata', 'Atendimento registrado com sucesso.');
+				exibirMensagem('Maria Gata', 'Atendimento [' + jsonRetorno.mensagem + '] registrado com sucesso.');
 			} else {
 				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
 			}	
