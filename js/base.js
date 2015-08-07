@@ -5,9 +5,11 @@ var ambiente = "PRO"; //TES ou PRO
 
 if (ambiente == "TES") {
 	urlBackend = "http://mariagata.com.br/sistemateste/mariagata.php"; //Teste
+	urlBackendPainel = "http://mariagata.com.br/sistemateste/painel_backend.php"; //Teste
 	$('body').removeClass("skin-pink").addClass("skin-black");
 } else {
 	urlBackend = "http://mariagata.com.br/sistema/mariagata.php"; //Produção
+	urlBackendPainel = "http://mariagata.com.br/sistema/painel_backend.php"; //Produção
 	$('body').removeClass("skin-black").addClass("skin-pink");
 }
 
