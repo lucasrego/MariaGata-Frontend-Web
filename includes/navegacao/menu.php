@@ -23,16 +23,22 @@
 		</li>
 		
 		<li>
-			<a href="agendar.php">
-				<i class="fa fa-clock-o"></i>
-				<span>Agendar</span>
+			<a href="#" class="dropdown-toggle">
+				<i class="fa fa-print"></i>
+				<span>Agenda</span>
+				<b class="arrow fa fa-angle-right"></b>
 			</a>
+
+			<ul class="submenu">
+				<li><a href="agendar.php">Agendar</a></li>
+				<li><a href="calendarioAgendamentos.php">Consultar</a></li>
+			</ul>
 		</li>
 		
 		<li>
-			<a href="calendarioAgendamentos.php">
-				<i class="fa fa-search"></i>
-				<span>Consultar Agenda</span>
+			<a href="controleCaixa.php">
+				<i class="fa fa-money"></i>
+				<span>Caixa</span>
 			</a>
 		</li>
 		

@@ -508,10 +508,57 @@ $(function() {
 		exibirAtendimentos();
 	});
 	
+	$('#btnCancelarComanda').click(function (e) {
+		var idComanda = $('#listaAtendimentos').val();
+		if ((idComanda == "")||((idComanda == null))) {
+			exibirMensagem('Maria Gata', 'Selecione uma Comanda para cancelar.');
+			return false;
+		} else {
+			var cliente = idComanda.split("|")[0];
+			var atendimento = idComanda.split("|")[1];
+			$('#comandaCancelar').html(atendimento);
+			$('#modalConfirmaCancelamentoComanda').modal('show');
+		}		
+	});
+	
+	$('#modalConfirmaCancelamentoComandaBtnCancelar').click(function (e) {
+		
+		var atendimentoselecionado = $('#comandaCancelar').html();
+		$.ajax({
+			url: urlBackend,
+			type: 'POST',
+			data: {
+				a: 'cancelaratendimento',
+				atendimento: atendimentoselecionado
+			},
+			context: document.body
+			
+		})
+		.always(function() {		
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) {
+			exibirMensagem('Maria Gata', 'Desculpe! Ocorreu um erro inesperado.');
+		})
+		.done(function(ret) {
+			
+			//Teste se o objeto retornao é JSON, ou seja, existem dados
+			var jsonRetorno = jQuery.parseJSON(ret);
+			
+			//Se o JSON não tiver a opção resultado é porque 1 ou mais condomínios foram retornados
+			if (jsonRetorno.resultado == 'SUCESSO') {
+				exibirAtendimentos();
+				exibirMensagem('Maria Gata', 'Atendimento [' + jsonRetorno.mensagem + '] cancelado com sucesso.');
+			} else {
+				exibirMensagem('Maria Gata', jsonRetorno.mensagem);
+			}	
+		}); //Fim ajax
+		
+	});
+	
 	$('#btnConsultarComanda').click(function (e) {
 		var idComanda = $('#listaAtendimentos').val();
 		if ((idComanda == "")||((idComanda == null))) {
-			exibirMensagem('Maria Gata', 'Selecione uma Comanda.');
+			exibirMensagem('Maria Gata', 'Selecione uma Comanda para consultar.');
 			return false;
 		} else {
 			var cliente = idComanda.split("|")[0];
@@ -566,7 +613,9 @@ $(function() {
 						//ATEN_ID, ATEN_Status, CLIE_ID, CLIE_Nome, CLIE_Sobrenome, USUA_ID, USUA_Nome, SUM(ASER_ValorCobrado) as ASER_ValorCobrado
 						$('#listaAtendimentos').append( "<option class='" + classe + "' value='" + value.CLIE_ID + "|" + value.ATEN_ID + "'>[" + value.ATEN_ID + "] " + value.CLIE_Nome + " (" + value.ASER_ValorCobrado.replace('.',',') + ")</option>");
 						
-						somaComandas += parseInt(value.ASER_ValorCobrado.replace('.','').replace(',',''));
+						if (value.ATEN_Status == "P") {
+							somaComandas += parseInt(value.ASER_ValorCobrado.replace('.','').replace(',',''));
+						}
 						
 					});
 					

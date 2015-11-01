@@ -807,6 +807,33 @@ switch ($acao) {
 		break;
 		
 	
+	case "cancelaratendimento":
+		
+		//http://mariagata.com.br/sistema/mariagata.php?a=cancelaragendamento&atendimento=1
+		
+		$atendimento = $_POST["atendimento"];
+		
+		session_start();
+		if ($_SESSION['usuarioperfil'] != 'A') {
+			echo '{ "resultado": "ERRO", "mensagem": "Apenas o administrador pode cancelar um atendimento."}';
+			exit;
+		}
+		
+		$update_atendimento["ATEN_Status"]  = MySQL::SQLValue('C');
+		if (! $db->UpdateRows("atendimento", $update_atendimento, array("ATEN_ID" => $atendimento))) {
+			$db->TransactionRollback();
+			$db->Kill();
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Não conseguimos cancelar o atendimento [' . $atendimento . ']. Entre em contato pelo Whatsapp (71) 8879-1014, ok? ;)" }';
+			exit;	
+		} else {
+		
+			$db->TransactionEnd(); //Commit
+			echo '{ "resultado": "SUCESSO", "mensagem": "' . $atendimento . '"}';
+			exit;
+						
+		}
+		
+		break;
 	
 	case "editardadosusuario":
 		
@@ -1107,6 +1134,143 @@ switch ($acao) {
 			exit;
 		}
 		
+		break;
+		
+	
+	case "obtercaixadia":	
+		
+		//http://mariagata.com.br/sistema/mariagata.php?a=obtercaixadia
+		
+		if (isset($_POST["datacaixa"])) {
+			session_start();
+			if ($_SESSION['usuarioperfil'] != 'A') {
+				echo '{ "resultado": "ERRO", "mensagem": "Apenas o administrador pode acessar o caixa de datas anteriores."}';
+				exit;
+			} else {
+				$dataCaixa = $_POST["datacaixa"];
+			}
+		} else {
+			$dataCaixa = $lsDataAtual;
+		}
+		
+		$sql_query = "
+					select 
+						DATE_FORMAT((select max(CAIX_Data) dataultimocaixa from caixa where CAIX_Data <> '" . $dataCaixa . "'),'%d/%m/%Y') as dataultimocaixa,
+						sd.saldodia, sa.saldoanterior, caixa.CAIX_ID, caixa.CAIX_Data, caixa.CAIX_Hora, caixa.CAIX_Descricao, caixa.CAIX_Tipo, caixa.CAIX_Valor, caixa.USUA_ID
+					from 
+						(
+							SELECT 
+								a.ATEN_ID as CAIX_ID,
+								DATE_FORMAT(ATEN_DataAtendimento,'%Y-%m-%d') as CAIX_Data,
+								DATE_FORMAT(ATEN_DataRegistro,'%H:%i') as CAIX_Hora,
+								CONCAT('#', a.ATEN_ID, ' - ', CLIE_Nome) as CAIX_Descricao,
+								'E' as CAIX_Tipo, 
+								APAG_ValorPago as CAIX_Valor,
+								a.USUA_ID as USUA_ID
+							FROM atendimento a,	atendimento_pagamento atp, cliente c
+							WHERE a.ATEN_ID = atp.ATEN_ID and FPAG_ID = 1 and a.CLIE_ID = c.CLIE_ID and ATEN_DataAtendimento = '" . $dataCaixa . "'	and ATEN_Status = 'P' and a.FILI_ID = 1
+							UNION
+							select 
+								CAIX_ID, CAIX_Data, DATE_FORMAT(CAIX_Hora,'%H:%i') as CAIX_Hora, CAIX_Descricao, CAIX_Tipo, CAIX_Valor, USUA_ID
+							from 
+								caixa
+							where 
+								CAIX_Data = '" . $dataCaixa . "' 
+							order by CAIX_Hora
+						) as caixa,
+						(
+							select sum(saldodia) as saldodia from
+							(
+								select IFNULL(sum(CASE CAIX_Tipo WHEN 'E' THEN CAIX_Valor WHEN 'S' THEN CAIX_Valor * -1 ELSE 0 END), 0) as saldodia from caixa where CAIX_Data = '" . $dataCaixa . "'
+								union
+								SELECT IFNULL(SUM(APAG_ValorPago), 0) as saldodia FROM	atendimento a, atendimento_pagamento atp WHERE a.ATEN_ID = atp.ATEN_ID and FPAG_ID = 1 and ATEN_DataAtendimento = '" . $dataCaixa . "' and ATEN_Status = 'P' and a.FILI_ID = 1
+							) somasaldodia
+						) as sd, 
+						(
+							select SUM(saldodiaanterior) as saldoanterior from 
+								(SELECT 
+									IFNULL(SUM(APAG_ValorPago), 0) as saldodiaanterior
+								FROM atendimento a, atendimento_pagamento atp 
+								WHERE 
+									a.ATEN_ID = atp.ATEN_ID 
+									and FPAG_ID = 1 
+									and ATEN_DataAtendimento = (select max(CAIX_Data) dataultimocaixa from caixa where CAIX_Data <> '" . $dataCaixa . "') 
+									and ATEN_Status = 'P' 
+									and a.FILI_ID = 1
+								 UNION
+								select 
+									IFNULL(sum(CASE CAIX_Tipo WHEN 'E' THEN CAIX_Valor WHEN 'S' THEN CAIX_Valor * -1 ELSE 0 END), 0) as saldoanterior
+								from caixa 
+								where 
+									CAIX_Data = (select max(CAIX_Data) dataultimocaixa from caixa where CAIX_Data <> '" . $dataCaixa . "')
+								) sda				  
+						) as sa
+					where 
+						CAIX_Data = '" . $dataCaixa . "' 
+					order by CAIX_ID
+		";
+			
+		if ($db->Query($sql_query)) {
+			if (($db->RowCount() >= 0) and ($db->RowCount() != "")) {
+				echo $db->GetJSON();
+			} else {
+				echo '{ "resultado": "NAOENCONTRADO", "mensagem": "Nenhum registro encontrado para ' . $lsDataAtual . '" }';
+				exit;
+			}
+		} else {
+			echo '{ "resultado": "ERRO", "mensagem": "Ops! Por um problema técnico não foi possível obter os registros do dia ' . $lsDataAtual . '" }';
+			exit;
+		}
+		
+		break;
+	
+	
+	case "inserircaixa":
+		
+		//http://mariagata.com.br/sistema/mariagata.php?a=inserircaixa&descricao=descricao teste&tipo=E&valor=254,90
+		
+		session_start();
+		$usuario = $_SESSION['usuario'];
+		
+		if (isset($_POST["datacaixa"])) {
+			if ($_SESSION['usuarioperfil'] != 'A') {
+				echo '{ "resultado": "ERRO", "mensagem": "Apenas o administrador pode alterar o caixa de datas anteriores."}';
+				exit;
+			} else {
+				$data = $_POST["datacaixa"];
+			}
+		} else {
+			$data = $lsDataAtual;
+		}
+		
+		$descricao = trim($_POST["descricao"]);
+		$tipo = $_POST["tipo"];
+		$valor = str_replace(",", ".", str_replace(".", "", trim($_POST["valor"])));
+		$valor = substr($valor, 0, -2) . "." . substr($valor, strlen($valor) - 2);
+		
+		//echo '{ "resultado": "ERRO", "mensagem": "' . $valor . '"}';
+		//exit;
+		
+		$lsHoraAtual = date("H:i:s");
+		
+		//INSERE NO CAIXA
+		$caixa["CAIX_Data"]  = MySQL::SQLValue($data);
+		$caixa["CAIX_Hora"]  = MySQL::SQLValue($lsHoraAtual);
+		$caixa["USUA_ID"]  = MySQL::SQLValue($usuario, MySQL::SQLVALUE_NUMBER);
+		$caixa["CAIX_Descricao"]  = MySQL::SQLValue($descricao);
+		$caixa["CAIX_Tipo"] = MySQL::SQLValue($tipo);
+		$caixa["CAIX_Valor"]  = MySQL::SQLValue($valor);
+					
+		$resultado_caixa = $db->InsertRow("caixa", $caixa);
+		if (! $resultado_caixa) {
+			echo '{ "resultado": "ERRO", "mensagem": "Não foi possível inserir o registro no caixa." }';
+			exit;
+		} else {
+			
+			echo '{ "resultado": "SUCESSO", "mensagem": "' . $resultado_caixa . '"}';
+			exit;			
+		}
+	
 		break;
 		
 		
@@ -1453,7 +1617,7 @@ switch ($acao) {
 				} else {
 					//deletarEventoGoogleCalendar($eventoCriado->id);
 					echo '{ "resultado": "ERRO", "mensagem": "Ops! Tivemos um problema técnico e não conseguimos agendar seu momento [3]! Tente pelo Whatsapp (71) 8879-1014" }';
-					exit;			
+					exit;		
 				}
 			}
 			

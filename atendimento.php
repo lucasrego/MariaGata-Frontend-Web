@@ -79,9 +79,12 @@ include 'includes/navegacao/navbar.php';
 										</div>
 										<div class="form-group">
 											<div class="col-sm-12 col-lg-12 col-xs-12 col-md-12 controls">
-												<h4 id="totalFaturadoDia" class="col-sm-8 col-xs-8 col-lg-8 campoMoeda"><b>0</b></h4>
-												<div class="col-sm-4 col-xs-4 col-lg-4 controls">
+												<h4 id="totalFaturadoDia" class="col-sm-6 col-xs-6 col-lg-6 campoMoeda"><b>0</b></h4>
+												<div class="col-sm-6 col-xs-6 col-lg-6 controls">
 													<button type="submit" id="btnConsultarComanda" class="btn btn-inverse btn-sm"><i class="fa fa-search"></i></button>
+													<?php if ($_SESSION['usuarioperfil'] == 'A') { ?>
+														<button type="submit" id="btnCancelarComanda" class="btn btn-danger btn-sm"><i class="fa fa-ban"></i></button>
+													<?php } ?>												
 												</div>
 											</div>
 										</div>
@@ -216,8 +219,26 @@ include 'includes/navegacao/navbar.php';
         </div>
         <!-- END Container -->
 		
+		<div id="modalConfirmaCancelamentoComanda" class="modal fade">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+						<h3 id="myModalLabel2">Cancelar Comanda</h3>
+					</div>
+					<div class="modal-body">
+						<p>Deseja realmente cancelar a comanda:&nbsp;<span id="comandaCancelar"></span>?</p>
+					</div>
+					<div class="modal-footer">
+						<button class="btn" data-dismiss="modal" aria-hidden="true">Não</button>
+						<button class="btn btn-danger" id="modalConfirmaCancelamentoComandaBtnCancelar" data-dismiss="modal">Sim</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		<?php include 'includes/navegacao/modalscliente.php'; ?>
-				
+		
 		<?php include 'includes/navegacao/rodape.php'; ?>
         
          <!--page specific plugin scripts-->
